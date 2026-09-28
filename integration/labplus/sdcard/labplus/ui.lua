@@ -46,7 +46,7 @@ local function draw_voice_button()
     display.fill_round_rect(x,y,w,72,16,color)
     display.fill_round_rect(x+3,y+3,w-6,66,13,color)
     cjk.draw_line(x+(w-96)//2,y+24,cjk.lines(label,w-12)[1],{color='#FFFFFF',bg=color})
-    if program_state then
+    if program_state and program_state~='running' then
         local running=program_state=='running'
         display.fill_round_rect(36,y,198,72,16,running and theme.red or theme.green)
         display.fill_round_rect(39,y+3,192,66,13,running and theme.red or theme.green)
@@ -173,12 +173,12 @@ shell=shell_module.new({
     preview=function(path) return callbacks.preview(path) end,
     library=function() return callbacks.library and callbacks.library() or {} end,
     run_file=function(path) return callbacks.run_file(path) end,
-    stop_program=function() if ui.on_program then ui.on_program(true) end end,
+    stop_program=function() if ui.on_program then return ui.on_program(true) end return false end,
     leave_claw=function() button_held=false;drag_y=nil;if ui.on_leave_claw then ui.on_leave_claw() end end,
     enter_claw=function() if not mode then ui.show('按住下方按钮说话。\n可以聊天，也可以让 AI 为开发板编程。','voice') end end,
 },cjk,logo,width,height)
 function ui.open_program() shell.go('program') end
-function ui.product_status() return {page=shell.page,menu=shell.menu} end
+function ui.product_status() return {page=shell.page,menu=shell.menu,fullscreen=shell.page=='program',confirm_stop=shell.confirm_stop or false,animating=shell.animation~=nil} end
 draw(false)
 print('LABPLUS_LOGO_RENDERED')
 function ui.tick()

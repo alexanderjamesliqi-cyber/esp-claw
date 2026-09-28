@@ -6,7 +6,7 @@ local limits=dofile('/sdcard/labplus/limits.lua')
 local root=storage.join_path(storage.get_root_dir(),'labplus')
 local dir=storage.join_path(storage.get_root_dir(),'programs')
 local cached=nil
-local M={};local selected=nil;local job=nil;local last_answer=nil;local sequence=0;local last_poll=0
+local M={};local selected=nil;local job=nil;local last_answer=nil;local sequence=0;local last_poll=0;local last_result=nil;local last_job=nil
 local function validate_selected()
     local forbidden={tkinter=true,pygame=true,requests=true,numpy=true,network=true,framebuf=true}
     for line in cached.code:gmatch('[^\n]+') do
@@ -81,7 +81,7 @@ function M.list()
             if entry.name:match('^generated_') then item.title='AI 程序 '..string.format('%02d',#result+1);item.origin='ai' end
             if storage.exists(path..'.json') then
                 local ok,meta=pcall(json.decode,storage.read_file(path..'.json'))
-                if ok and type(meta)=='table' then item.title=meta.title or item.title;item.origin=meta.origin or 'user' end
+                if ok and type(meta)=='table' then item.title=meta.title or item.title;item.origin=meta.origin or 'user';item.id=meta.studio_id end
             end
             result[#result+1]=item
         end
@@ -106,7 +106,16 @@ function M.start(persistent)
     local ok,message=runner.start(persistent == true)
     assert(ok,message)
     job=assert(message:match('Started Python job (%x+)'),'missing program job id')
+    last_job=job;last_result=nil
     return true
+end
+function M.current_path() return job and selected and selected.path end
+function M.job_id() return job end
+function M.forget(path) if selected and selected.path==path and not job then selected=nil;cached=nil;last_answer=nil end end
+function M.status(id)
+    assert(id==job or id==last_job,'unknown run')
+    if job then return {state='running',output=''} end
+    return last_result or {state='failed',error='result unavailable',output=''}
 end
 function M.running() return job~=nil end
 function M.stop()
@@ -132,7 +141,7 @@ function M.tick()
         if parsed and value.id==selected.id then result=value end
     end
     if status=='timeout' or status=='stopped' or result.state=='running' then result.state=status end
-    job=nil
+    last_result=result;job=nil
     return result
 end
 return M

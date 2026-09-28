@@ -47,7 +47,7 @@ function M.new(host,cjk,logo,w,h)
  end
  local function notify(message) S.notice=message end
  local function persist_status()
-  storage.write_file('/sdcard/labplus/product-status.json',json.encode({page=S.page,menu=S.menu,program=host.program_state(),usb_connected=S.usb or false,clock=S.clock,default_program=host.default_program and host.default_program(),wifi_connected=S.net.connected or false,wifi_busy=S.net.busy or false,library_count=#S.library,network_count=#S.wifi,rendered_at_ms=system.millis()}))
+  storage.write_file('/sdcard/labplus/product-status.json',json.encode({page=S.page,menu=S.menu,program=host.program_state(),confirm_stop=S.confirm_stop or false,fullscreen=S.page=='program',animating=S.animation~=nil,usb_connected=S.usb or false,clock=S.clock,default_program=host.default_program and host.default_program(),wifi_connected=S.net.connected or false,wifi_busy=S.net.busy or false,library_count=#S.library,network_count=#S.wifi,rendered_at_ms=system.millis()}))
  end
  function S.chrome()
   display.fill_rect(0,0,w,54,theme.card)
@@ -67,12 +67,17 @@ function M.new(host,cjk,logo,w,h)
   S.library=ok and result or {};if not ok then notify('暂时无法读取程序库。') end
   S.offset=math.min(S.offset,math.max(0,#S.library-6))
  end
+ function S.open_menu()
+  if S.page=='program' and host.program_state()=='running' then return end
+  S.menu=true;S.animation={start=system.millis(),frame=0};gesture=nil
+ end
  function S.go(page)
-  if page=='settings' then S.menu=true;S.draw();return end
+  if host.program_state()=='running' and page~='program' then return end
+  if page=='settings' then S.open_menu();return end
   if S.page=='claw' and page~='claw' and host.leave_claw then host.leave_claw() end
   if S.page=='keyboard' and page~='keyboard' then S.password='';S.visible=false end
   if page~='detail' then S.preview=nil end
-  S.menu=false;S.page=page;S.notice='';gesture=nil
+  S.menu=false;S.animation=nil;S.confirm_stop=false;S.page=page;S.notice='';gesture=nil
   if page=='library' then refresh_library()
   elseif page=='wifi' then
    S.offset=0
@@ -149,11 +154,8 @@ function M.new(host,cjk,logo,w,h)
    label(42,272,'USB  '..(S.usb and '已连接电脑' or '未连接电脑'),w-84,{size=20,bg=theme.card,color=S.usb and theme.blue or theme.muted})
    card(350,144,'ESP-Claw','按住说话，让想法变成程序','voice',function() S.go('claw') end,true)
    card(514,116,'程序库','运行作品，选择开机程序','library',function() S.offset=0;S.go('library') end)
-   if host.program_state()=='running' then box(24,666,w-48,60,'停止当前程序',host.stop_program,theme.red)
-   else
-    local default=host.default_program and host.default_program()
-    label(36,678,default and '已设置开机程序' or '尚未设置开机程序',w-72,{size=20,color=theme.muted})
-   end
+   local default=host.default_program and host.default_program()
+   label(36,678,default and '已设置开机程序' or '尚未设置开机程序',w-72,{size=20,color=theme.muted})
    label(52,758,'下拉设置 · 底部上滑返回主页',w-80,{size=20,color=theme.muted})
   elseif S.page=='wifi' then
    header('Wi-Fi 设置',S.net.connected and ('已连接 '..(S.net.ssid or '')) or '选择网络，连接成功后自动保存')
@@ -192,7 +194,7 @@ function M.new(host,cjk,logo,w,h)
    box(312,744,144,54,'刷新',function() refresh_library();S.draw() end)
   elseif S.page=='startup' then
    local default=host.default_program and host.default_program()
-   header('开机程序',default and '开机自动运行，上滑停止并回到主页' or '尚未选择开机程序')
+   header('开机程序',default and '开机自动运行，上滑确认后退出' or '尚未选择开机程序')
    local title=default and default:match('([^/]+)$') or '无'
    for _,item in ipairs(S.library) do if item.path==default then title=item.title;break end end
    label(24,210,title,w-48)
@@ -221,37 +223,52 @@ function M.new(host,cjk,logo,w,h)
     else notify(err or '程序检查未通过，暂时无法运行。');S.draw() end
    end,theme.green)
   elseif S.page=='program' then
-   header('程序运行',host.program_state()=='running' and '运行中 · 可停止或上滑返回主页' or '程序已结束')
-   display.fill_round_rect(16,158,w-32,546,18,theme.card)
-   local ls=cjk.lines(S.run_text or '等待程序输出…',w-48)
+   -- The program owns the entire display; no header, navigation or stop button.
+   local ls=cjk.lines(S.run_text or '',w-24)
    local offset=S.run_scroll or 0
-   for i=offset+1,math.min(offset+17,#ls) do cjk.draw_line(24,174+(i-offset-1)*30,ls[i]) end
-   if host.program_state()=='running' then box(24,746,198,62,'停止',host.stop_program,theme.red) end
-   box(234,746,222,62,'程序库',function() S.go('library') end)
+   for i=offset+1,math.min(offset+27,#ls) do cjk.draw_line(12,12+(i-offset-1)*30,ls[i],{bg=theme.bg}) end
   end
-  S.chrome();display.present();display.end_frame();persist_status()
+  if S.page~='program' then S.chrome() end
+  if S.confirm_stop then
+   buttons={}
+   display.fill_round_rect(24,h//2-110,w-48,240,20,theme.card)
+   label(48,h//2-76,'结束当前程序？',w-96,{bg=theme.card})
+   label(48,h//2-32,S.exiting and '正在结束，请稍候…' or '取消后程序继续运行',w-96,{bg=theme.card,size=20,color=theme.muted})
+   if not S.exiting then
+    box(48,h//2+36,176,60,'继续运行',function() S.confirm_stop=false;S.draw() end)
+    box(240,h//2+36,192,60,'结束运行',function()
+     if host.stop_program()~=false then S.exiting=true else S.confirm_stop=false end
+     S.draw()
+    end,theme.red)
+   end
+  end
+  display.present();display.end_frame();persist_status()
  end
  function S.program_output(value)
   S.run_text=value;S.run_scroll=0;if S.page=='program' and not S.menu then S.draw() end
  end
  function S.handle(t,pressed,released)
+  if S.animation or S.exiting then return true end
   if pressed and t.x and t.y then gesture={x=t.x,y=t.y,last_y=t.y,moved=false,page=S.page} end
   if t.pressed and gesture and t.y then
    gesture.last_y=t.y
    if math.abs(t.y-gesture.y)>22 then gesture.moved=true end
-   if gesture.y>=h-28 and gesture.y-t.y>60 then
+   if (gesture.y>=h-28 or S.page=='program') and gesture.y-t.y>60 and not S.confirm_stop then
     gesture=nil;if host.cancel_startup then host.cancel_startup() end
-    if host.program_state()=='running' then host.stop_program() end
-    S.go('home');return true
+    if host.program_state()=='running' then S.confirm_stop=true;S.draw()
+    else S.go('home') end
+    return true
    end
-   if gesture.y<60 and t.y-gesture.y>55 then
-    gesture=nil;S.menu=true;S.draw();return true
+   if gesture.y<60 and t.y-gesture.y>55 and S.page~='program' and not S.confirm_stop then
+    gesture=nil;S.open_menu();return true
    end
   end
   if released and gesture then
    local g=gesture;gesture=nil
    if not g.moved then
-    if g.y<54 then S.menu=not S.menu;S.draw();return true end
+    if g.y<54 and S.page~='program' and not S.confirm_stop then
+     if S.menu then S.menu=false;S.draw() else S.open_menu() end;return true
+    end
     if S.page~='claw' or S.menu then
      for _,b in ipairs(buttons) do if g.x>=b.x and g.x<=b.x+b.w and g.y>=b.y and g.y<=b.y+b.h then b.action();return true end end
     end
@@ -268,6 +285,17 @@ function M.new(host,cjk,logo,w,h)
   return S.page~='claw' or S.menu or (gesture and (gesture.y<60 or gesture.y>=h-28))
  end
  function S.tick(now)
+  if S.exiting and host.program_state()~='running' then S.exiting=false;S.go('home')
+  elseif S.confirm_stop and host.program_state()~='running' then S.confirm_stop=false;S.draw() end
+  if S.animation then
+   local frame=math.min(4,(now-S.animation.start)//40+1)
+   if frame>S.animation.frame then
+    S.animation.frame=frame
+    if frame==4 then S.animation=nil;S.draw()
+    else display.begin_frame({clear=false});display.fill_rect(0,0,w,h*frame//4,theme.bg);display.fill_rect(0,h*frame//4-3,w,3,theme.border);display.present();display.end_frame() end
+   end
+   return
+  end
   if now<next_poll then return end;next_poll=now+1000
   S.usb=system.usb_connected and system.usb_connected() or false
   local valid=system.time and system.time()>1700000000

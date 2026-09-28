@@ -9,6 +9,8 @@ def save():
         json.dump(result,f)
 def capture(*items,**kwargs):
     line=kwargs.get('sep',' ').join(str(x) for x in items)+kwargs.get('end','\n')
+    if len(result['output'])+len(line)>4000:
+        result['overflow']=True
     result['output']=(result['output']+line)[-4000:]
 save()
 try:

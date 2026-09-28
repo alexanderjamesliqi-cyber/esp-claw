@@ -15,10 +15,10 @@ local S=dofile(SHELL_PATH).new({cancel_startup=function()cancellations=cancellat
  library=function()return {{title='Countdown',path='/sdcard/programs/countdown.py'}}end,
  enter_claw=function()end,leave_claw=function()left=left+1 end,
  run_file=function()running='running';executions=executions+1;return true end,
- stop_program=function()running='ready';stops=stops+1 end},
+ stop_program=function()stops=stops+1;return true end},
  {lines=function(v)return {v}end,draw_line=function(_,_,v)output[#output+1]=v end},'',480,854)
 local function tap(x,y) S.handle({pressed=true,x=x,y=y},true,false);S.handle({pressed=false},false,true) end
-local function swipe(y1,y2) S.handle({pressed=true,x=200,y=y1},true,false);S.handle({pressed=true,x=200,y=y2},false,false);S.handle({pressed=false},false,true) end
+local function swipe(y1,y2) S.handle({pressed=true,x=200,y=y1},true,false);S.handle({pressed=true,x=200,y=y2},false,false);S.handle({pressed=false},false,true);if S.animation then now=now+160;S.tick(now) end end
 S.go('home');S.tick(1000)
 tap(200,700);assert(cancellations==0) -- stray tap must not suppress startup
 swipe(845,720);assert(cancellations==1)
@@ -28,7 +28,11 @@ tap(200,650);assert(default=='/sdcard/programs/countdown.py')
 tap(200,650);assert(default==nil)
 tap(200,650);assert(default=='/sdcard/programs/countdown.py')
 tap(340,770);assert(S.page=='program' and executions==1)
-swipe(845,730);assert(S.page=='home' and running=='ready' and stops==1)
+swipe(845,730);assert(S.page=='program' and running=='running' and stops==0 and S.confirm_stop)
+tap(120,490);assert(not S.confirm_stop and running=='running' and stops==0)
+S.go('library');assert(S.page=='program')
+swipe(500,380);assert(S.confirm_stop);tap(340,490);S.tick(now);assert(S.page=='program' and S.exiting and running=='running');running='ready';S.tick(now);assert(S.page=='home' and stops==1)
+S.open_menu();assert(S.animation);S.tick(now);assert(S.animation.frame==1);now=now+40;S.tick(now);assert(S.animation.frame==2);now=now+80;S.tick(now);assert(not S.animation and S.menu);S.go('home')
 swipe(20,100);assert(S.menu);tap(100,320);assert(S.page=='device');swipe(845,730);assert(S.page=='home')
 tap(100,400);assert(S.page=='claw');swipe(845,720);assert(S.page=='home' and left==1)
 swipe(20,100);tap(100,220);assert(S.page=='wifi' and scan_count==1)

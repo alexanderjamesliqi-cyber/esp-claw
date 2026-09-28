@@ -158,6 +158,8 @@ local function process(folder, name)
     end
 end
 
+local studio=dofile('/sdcard/labplus/studio.lua').new(programs,ui,function() return ui.on_program(false) end)
+
 local function service_tick()
     ui.tick()
     if startup_pending and system.millis()>=startup_at then
@@ -175,6 +177,7 @@ local function service_tick()
         end
     end
     resources.tick()
+    studio.tick()
     local entries = storage.listdir(root)
     for _, entry in ipairs(entries) do
         if entry.type == 'dir' and entry.name:match('^[a-f0-9]+_[a-f0-9]+$') then

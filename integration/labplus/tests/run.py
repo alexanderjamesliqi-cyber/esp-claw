@@ -32,3 +32,6 @@ lua.execute((root / 'tests/resources.lua').read_text())
 lua = LuaRuntime(unpack_returned_tuples=True)
 lua.globals().TEXT_PATH = str(root / 'sdcard/labplus/text.lua')
 lua.execute((root / 'tests/font_resources.lua').read_text())
+
+import runpy
+runpy.run_path(str(root / "tests/studio.py"))

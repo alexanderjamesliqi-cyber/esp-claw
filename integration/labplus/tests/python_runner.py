@@ -18,4 +18,5 @@ def check(code, expected):
 assert check('print("hello", 123)','done')['output']=='hello 123\n'
 assert check('raise ValueError("test error")','failed')['error']=='test error'
 assert check('this is invalid syntax!','failed')['state']=='failed'
+assert check('print("x"*5000)','done')['overflow'] is True
 print('PASS: real Python wrapper stdout capture, runtime error, syntax error')

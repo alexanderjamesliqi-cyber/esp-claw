@@ -754,6 +754,8 @@ static void register_cap_cli_commands(void)
 void app_claw_usb_console_link(void);
 #endif
 
+void app_claw_studio_register(void);
+
 esp_err_t app_claw_cli_start(void)
 {
 #if CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG
@@ -766,7 +768,7 @@ esp_err_t app_claw_cli_start(void)
 
     repl_config.prompt = "app> ";
     repl_config.task_stack_size = 10240;
-    repl_config.max_cmdline_length = 512;
+    repl_config.max_cmdline_length = 1536;
 
 #if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(6, 2, 0)
     ESP_ERROR_CHECK(esp_console_new_repl_stdio(&repl_config, &repl));
@@ -787,6 +789,7 @@ esp_err_t app_claw_cli_start(void)
 
     esp_console_register_help_command();
     register_cap_cli_commands();
+    app_claw_studio_register();
 
     {
         esp_console_cmd_t ask_cmd = {
