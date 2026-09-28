@@ -1,0 +1,29 @@
+services:
+  relay:
+    build: .
+    env_file: .env
+    restart: unless-stopped
+    expose: ["8000"]
+    read_only: true
+    tmpfs: ["/tmp:size=16m"]
+    mem_limit: 512m
+    pids_limit: 64
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: ["ALL"]
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    environment:
+      RELAY_DOMAIN: ${RELAY_DOMAIN:?Set RELAY_DOMAIN in .env}
+    ports: ["80:80", "443:443"]
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      relay:
+        condition: service_healthy
+    mem_limit: 128m
+volumes:
+  caddy_data:
+  caddy_config:

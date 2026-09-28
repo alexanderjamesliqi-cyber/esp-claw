@@ -4,6 +4,8 @@
 板型 `labplus_ledong_max_v1`，ESP32-P4、16 MiB Flash、32 MiB PSRAM。
 设备直接连接千问实时语音 WebSocket，电脑仅用于开发、刷机和验证，不转发音频。
 
+服务器转发方案见 [ESP-Claw Relay](../../server/espclaw-relay/README.md)。后端已实现，当前已发布固件仍采用直连，切换需适配服务器域名和独立设备令牌。
+
 产品界面、交互规范和资源预算见 [PRODUCT.md](PRODUCT.md)。
 
 ![真机主界面](validation/home-current.png)

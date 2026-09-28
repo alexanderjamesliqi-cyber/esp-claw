@@ -54,3 +54,10 @@ pages/simulator/dist
 pages/simulator/*.log
 pages/simulator/public/runtime/*
 !pages/simulator/public/runtime/.gitkeep
+
+# Local credentials and backend test caches
+.env.*
+!.env.example
+*.private.json
+.pytest_cache/
+__pycache__/

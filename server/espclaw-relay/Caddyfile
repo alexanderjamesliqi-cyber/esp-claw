@@ -1,0 +1,5 @@
+{$RELAY_DOMAIN} {
+    reverse_proxy relay:8000 {
+        flush_interval -1
+    }
+}
