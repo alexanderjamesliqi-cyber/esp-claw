@@ -492,6 +492,7 @@ void wifi_manager_get_status(wifi_manager_status_t *status)
     status->ap_active = s_ap_active;
     status->sta_configured = s_sta_configured;
     status->sta_ip = s_ip_addr;
+    status->sta_ssid = s_sta_ssid;
     status->ap_ip = s_ap_ip;
     status->ap_ssid = s_ap_ssid;
     status->mode = wifi_manager_mode_string(s_mode);

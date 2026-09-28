@@ -24,19 +24,12 @@
 #define MICROPY_GC_INITIAL_HEAP_SIZE        (128 * 1024)
 #endif
 
-/* Native emitter for RISC-V */
-#if CONFIG_IDF_TARGET_ARCH_RISCV
-#if CONFIG_ESP_SYSTEM_PMP_IDRAM_SPLIT
+/* Managed user programs must remain interruptible at bytecode checkpoints. */
 #define MICROPY_EMIT_RV32                   (0)
-#else
-#define MICROPY_EMIT_RV32                   (1)
-#if CONFIG_IDF_TARGET_ESP32P4
-#define MICROPY_EMIT_RV32_ZCMP              (1)
-#endif
-#endif
-#else
-#define MICROPY_EMIT_XTENSAWIN              (1)
-#endif
+#define MICROPY_EMIT_XTENSAWIN              (0)
+#define MICROPY_PERSISTENT_CODE_LOAD_NATIVE (0)
+#define MICROPY_ENABLE_VM_ABORT             (1)
+#define MICROPY_PYEXEC_ENABLE_VM_ABORT       (1)
 
 /* Optimisations */
 #ifndef MICROPY_OPT_COMPUTED_GOTO
@@ -48,6 +41,7 @@
 #define MICROPY_ENABLE_GC                   (1)
 #define MICROPY_ENABLE_FINALISER            (1)
 #define MICROPY_PY_BUILTINS_MEMORYVIEW      (1)
+#define MICROPY_STACK_CHECK                 (1)
 #define MICROPY_STACK_CHECK_MARGIN          (1024)
 #define MICROPY_ENABLE_EMERGENCY_EXCEPTION_BUF (1)
 #define MICROPY_LONGINT_IMPL                (MICROPY_LONGINT_IMPL_MPZ)
@@ -120,16 +114,21 @@
 /* Enable help text */
 #define MICROPY_PY_BUILTINS_HELP            (1)
 
-/* GC uses split heap for PSRAM support */
+/* A fixed PSRAM heap prevents user code from consuming the system reserve. */
 #define MICROPY_GC_SPLIT_HEAP               (1)
-#define MICROPY_GC_SPLIT_HEAP_AUTO          (1)
+#define MICROPY_GC_SPLIT_HEAP_AUTO          (0)
 
 /* Map MP_STATE_PORT to MP_STATE_VM (same as official ESP32 port) */
 #define MP_STATE_PORT                       MP_STATE_VM
 
-/* Event poll hook — simplified version without threading/socket events */
+void cap_mpy_poll_hook(void);
+#define MICROPY_VM_HOOK_LOOP cap_mpy_poll_hook();
+#define MICROPY_VM_HOOK_RETURN cap_mpy_poll_hook();
+
+/* Event poll hook includes cooperative stop/timeout checks. */
 #define MICROPY_EVENT_POLL_HOOK \
     do { \
+        cap_mpy_poll_hook(); \
         mp_handle_pending(MP_HANDLE_PENDING_CALLBACKS_AND_EXCEPTIONS); \
     } while (0);
 

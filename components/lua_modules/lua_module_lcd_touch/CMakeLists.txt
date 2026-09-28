@@ -7,4 +7,5 @@ idf_component_register(
         cap_lua
         esp_lcd_touch
         esp_timer
+        display_service
 )

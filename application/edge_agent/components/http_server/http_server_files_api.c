@@ -9,9 +9,13 @@
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdatomic.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/queue.h"
 
 static int mkdir_parents(char *path, mode_t mode)
 {
@@ -160,7 +164,7 @@ static esp_err_t file_download_handler(httpd_req_t *req)
     return httpd_resp_send_chunk(req, NULL, 0);
 }
 
-static esp_err_t files_upload_handler(httpd_req_t *req)
+static esp_err_t files_upload_receive(httpd_req_t *req)
 {
     char relative_path[HTTP_SERVER_PATH_MAX] = {0};
     if (http_server_query_get(req, "path", relative_path, sizeof(relative_path)) != ESP_OK) {
@@ -188,37 +192,136 @@ static esp_err_t files_upload_handler(httpd_req_t *req)
         return httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Parent directory not found");
     }
 
-    FILE *file = fopen(full_path, "wb");
+    if (stat(full_path, &st) == 0 && !S_ISREG(st.st_mode)) {
+        return httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Destination is not a file");
+    }
+
+    /* Receive into a private sibling. A dropped connection must not truncate
+     * or unlink an existing user program. FAT rename cannot replace a file,
+     * so the final commit retains the old file until the new rename succeeds. */
+    char staging_path[HTTP_SERVER_PATH_MAX];
+    char backup_path[HTTP_SERVER_PATH_MAX];
+    int path_len = snprintf(staging_path, sizeof(staging_path), "%s/.claw-upload-XXXXXX", parent_path);
+    if (path_len < 0 || (size_t)path_len + 9 >= sizeof(staging_path)) {
+        return httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Upload path too long");
+    }
+    int fd = mkstemp(staging_path);
+    FILE *file = fd >= 0 ? fdopen(fd, "wb") : NULL;
     if (!file) {
+        if (fd >= 0) { close(fd); unlink(staging_path); }
         return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to create file");
     }
 
     char *scratch = http_server_alloc_scratch_buffer();
     if (!scratch) {
         fclose(file);
-        unlink(full_path);
+        unlink(staging_path);
         httpd_resp_send_500(req);
         return ESP_ERR_NO_MEM;
     }
 
     int remaining = req->content_len;
+    unsigned idle_timeouts = 0;
+    TickType_t started = xTaskGetTickCount();
     while (remaining > 0) {
         int chunk = remaining > HTTP_SERVER_SCRATCH_SIZE ? HTTP_SERVER_SCRATCH_SIZE : remaining;
         int received = httpd_req_recv(req, scratch, chunk);
-        if (received <= 0 || fwrite(scratch, 1, received, file) != (size_t)received) {
+        /* One bounded retry covers a radio scan/retransmission pause. A slow
+         * or disconnected client still has a finite deadline. */
+        bool within_deadline = xTaskGetTickCount() - started < pdMS_TO_TICKS(30000);
+        if (received == HTTPD_SOCK_ERR_TIMEOUT && idle_timeouts++ == 0 && within_deadline) {
+            continue;
+        }
+        if (!within_deadline || received <= 0 || fwrite(scratch, 1, received, file) != (size_t)received) {
             free(scratch);
             fclose(file);
-            unlink(full_path);
+            unlink(staging_path);
             return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Upload failed");
         }
         remaining -= received;
     }
 
     free(scratch);
-    fclose(file);
+    bool written = fflush(file) == 0 && fsync(fileno(file)) == 0;
+    if (fclose(file) != 0) written = false;
+    if (!written) {
+        unlink(staging_path);
+        return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to save file");
+    }
+    strlcpy(backup_path, staging_path, sizeof(backup_path));
+    strlcat(backup_path, ".previous", sizeof(backup_path));
+    bool had_original = stat(full_path, &st) == 0;
+    if (had_original && (!S_ISREG(st.st_mode) || access(backup_path, F_OK) == 0 || rename(full_path, backup_path) != 0)) {
+        unlink(staging_path);
+        return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to preserve original file");
+    }
+    if (rename(staging_path, full_path) != 0) {
+        if (had_original) (void)rename(backup_path, full_path);
+        unlink(staging_path);
+        return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to commit upload");
+    }
+    if (had_original) unlink(backup_path);
     httpd_resp_set_type(req, "application/json");
     httpd_resp_set_hdr(req, "Cache-Control", "no-store, max-age=0");
     return httpd_resp_sendstr(req, "{\"ok\":true}");
+}
+
+/* A slow request body must not monopolize the HTTP server's dispatcher.
+ * One permanent worker bounds stack/FD use and serializes file replacements. */
+static QueueHandle_t s_upload_queue;
+static atomic_uint s_upload_pending;
+static void files_upload_worker(void *arg)
+{
+    (void)arg;
+    for (;;) {
+        httpd_req_t *req = NULL;
+        if (xQueueReceive(s_upload_queue, &req, portMAX_DELAY) != pdTRUE) continue;
+        httpd_handle_t server = req->handle;
+        int socket = httpd_req_to_sockfd(req);
+        /* End this upload connection explicitly; rejected partial bodies must
+         * never be parsed as a following keep-alive request. */
+        httpd_resp_set_hdr(req, "Connection", "close");
+        files_upload_receive(req);
+        httpd_req_async_handler_complete(req);
+        atomic_fetch_sub(&s_upload_pending, 1);
+        httpd_sess_trigger_close(server, socket);
+    }
+}
+static esp_err_t files_upload_unavailable(httpd_req_t *req, const char *message)
+{
+    httpd_resp_set_status(req, "503 Service Unavailable");
+    httpd_resp_set_hdr(req, "Connection", "close");
+    return httpd_resp_sendstr(req, message);
+}
+static esp_err_t files_upload_handler(httpd_req_t *req)
+{
+    if (!s_upload_queue) {
+        s_upload_queue = xQueueCreate(1, sizeof(httpd_req_t *));
+        if (!s_upload_queue) return files_upload_unavailable(req, "Upload worker unavailable");
+        if (xTaskCreate(files_upload_worker, "file_upload", 8192, NULL, 3, NULL) != pdPASS) {
+            vQueueDelete(s_upload_queue);s_upload_queue = NULL;
+            return files_upload_unavailable(req, "Upload worker unavailable");
+        }
+    }
+    /* One active request and one queued request; additional callers get 503. */
+    unsigned pending = atomic_load(&s_upload_pending);
+    if (pending >= 2) {
+        files_upload_unavailable(req, "Another upload is in progress");
+        return ESP_FAIL; /* Close without waiting for its unread body. */
+    }
+    atomic_fetch_add(&s_upload_pending, 1);
+    httpd_req_t *copy = NULL;
+    if (httpd_req_async_handler_begin(req, &copy) != ESP_OK) {
+        atomic_fetch_sub(&s_upload_pending, 1);
+        return files_upload_unavailable(req, "Upload allocation failed");
+    }
+    if (xQueueSend(s_upload_queue, &copy, 0) != pdTRUE) {
+        files_upload_unavailable(copy, "Upload queue unavailable");
+        httpd_req_async_handler_complete(copy);
+        atomic_fetch_sub(&s_upload_pending, 1);
+        return ESP_FAIL;
+    }
+    return ESP_OK;
 }
 
 static int rmdir_recursive(const char *path)

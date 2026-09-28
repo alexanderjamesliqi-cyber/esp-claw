@@ -1,0 +1,4 @@
+{
+  "elapsed_s": 10.418346875000001,
+  "console": "mpy --run --path /sdcard/labplus/qa_reflash_ccd75d9c.py --timeout-ms 15000\nI (272463) cap_mpy: Mounted /sdcard in MicroPython VFS\nI (272463) cap_mpy: MicroPython runtime initialized (gc_heap=1048576)\nREFLASH_COUNTDOWN_OK\nI (282847) cap_mpy: MicroPython runtime deinitialized\nPython script completed successfully.\napp>  "
+}

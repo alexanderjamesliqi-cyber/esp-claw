@@ -1,0 +1,51 @@
+{
+  "before": {
+    "push_to_talk": true,
+    "agent_busy": false,
+    "ready": true,
+    "holding": false,
+    "input_bytes": 0,
+    "interruptions": 0,
+    "responses": 0,
+    "model": "qwen3.5-omni-flash-realtime",
+    "speaking": true,
+    "microphone": false,
+    "tool_calls": 0,
+    "active": true,
+    "speaker_enabled": true,
+    "output_bytes": 63360
+  },
+  "pressed": {
+    "speaking": false,
+    "push_to_talk": true,
+    "interruptions": 1,
+    "microphone": true,
+    "ready": true,
+    "responses": 0,
+    "model": "qwen3.5-omni-flash-realtime",
+    "tool_calls": 0,
+    "holding": true,
+    "speaker_enabled": false,
+    "output_bytes": 76800,
+    "input_bytes": 7680,
+    "active": true,
+    "agent_busy": false
+  },
+  "interrupt_s": 0.6787096670000006,
+  "after": {
+    "speaker_enabled": false,
+    "speaking": false,
+    "input_bytes": 25600,
+    "microphone": false,
+    "agent_busy": false,
+    "push_to_talk": true,
+    "tool_calls": 0,
+    "ready": true,
+    "output_bytes": 460800,
+    "active": true,
+    "interruptions": 1,
+    "model": "qwen3.5-omni-flash-realtime",
+    "holding": false,
+    "responses": 2
+  }
+}

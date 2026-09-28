@@ -1,0 +1,130 @@
+{
+  "boot_logs": [
+    [
+      "rst:0xc (SW_CPU_RESET),boot:0xc (SPI_FAST_FLASH_BOOT)",
+      "I (8485) cmd_cap_mpy: MicroPython CLI commands registered",
+      "STARTUP_CHECK\t/sdcard/programs/qa_startup.py\thome",
+      "I (14323) cap_mpy: Mounted /sdcard in MicroPython VFS",
+      "I (14323) cap_mpy: MicroPython runtime initialized (gc_heap=1048576)",
+      "I (14328) cap_mpy: MicroPython runtime deinitialized",
+      "I (14433) cap_mpy: Mounted /sdcard in MicroPython VFS",
+      "I (14433) cap_mpy: MicroPython runtime initialized (gc_heap=1048576)"
+    ],
+    [
+      "rst:0xc (SW_CPU_RESET),boot:0xc (SPI_FAST_FLASH_BOOT)",
+      "I (8477) cmd_cap_mpy: MicroPython CLI commands registered",
+      "STARTUP_CHECK\t/sdcard/programs/hello_labplus.py\thome",
+      "I (14305) cap_mpy: Mounted /sdcard in MicroPython VFS",
+      "I (14305) cap_mpy: MicroPython runtime initialized (gc_heap=1048576)",
+      "I (14309) cap_mpy: MicroPython runtime deinitialized",
+      "I (14420) cap_mpy: Mounted /sdcard in MicroPython VFS",
+      "I (14420) cap_mpy: MicroPython runtime initialized (gc_heap=1048576)",
+      "I (15222) cap_mpy: MicroPython runtime deinitialized"
+    ],
+    [
+      "rst:0xc (SW_CPU_RESET),boot:0xc (SPI_FAST_FLASH_BOOT)",
+      "I (8446) cmd_cap_mpy: MicroPython CLI commands registered",
+      "STARTUP_CHECK\tnil\thome"
+    ]
+  ],
+  "boot_snapshots": [
+    {
+      "clock": "17:53",
+      "rendered_at_ms": 27622,
+      "page": "program",
+      "usb_connected": true,
+      "wifi_connected": true,
+      "menu": false,
+      "default_program": "/sdcard/programs/qa_startup.py",
+      "network_count": 0,
+      "wifi_busy": false,
+      "library_count": 0,
+      "program": "running"
+    },
+    {
+      "wifi_busy": false,
+      "wifi_connected": true,
+      "menu": false,
+      "usb_connected": true,
+      "rendered_at_ms": 14446,
+      "clock": "17:54",
+      "default_program": "/sdcard/programs/hello_labplus.py",
+      "page": "program",
+      "library_count": 0,
+      "network_count": 0,
+      "program": "ready"
+    },
+    {
+      "menu": false,
+      "wifi_connected": true,
+      "wifi_busy": false,
+      "library_count": 0,
+      "rendered_at_ms": 20165,
+      "network_count": 0,
+      "clock": "17:55",
+      "usb_connected": true,
+      "page": "home"
+    }
+  ],
+  "boot": {
+    "clock": "17:53",
+    "rendered_at_ms": 27622,
+    "page": "program",
+    "usb_connected": true,
+    "wifi_connected": true,
+    "menu": false,
+    "default_program": "/sdcard/programs/qa_startup.py",
+    "network_count": 0,
+    "wifi_busy": false,
+    "library_count": 0,
+    "program": "running"
+  },
+  "after_70s": {
+    "clock": "17:53",
+    "rendered_at_ms": 27622,
+    "page": "program",
+    "usb_connected": true,
+    "wifi_connected": true,
+    "menu": false,
+    "default_program": "/sdcard/programs/qa_startup.py",
+    "network_count": 0,
+    "wifi_busy": false,
+    "library_count": 0,
+    "program": "running"
+  },
+  "stop": "mpy --stop ui_program\nI (87500) cap_mpy: MicroPython runtime deinitialized\nOK: stop requested for job c5018e4e\napp>  ",
+  "switched": {
+    "wifi_busy": false,
+    "wifi_connected": true,
+    "menu": false,
+    "usb_connected": true,
+    "rendered_at_ms": 14446,
+    "clock": "17:54",
+    "default_program": "/sdcard/programs/hello_labplus.py",
+    "page": "program",
+    "library_count": 0,
+    "network_count": 0,
+    "program": "ready"
+  },
+  "selection": {
+    "id": "33d8_1",
+    "validated": true,
+    "path": "/sdcard/programs/hello_labplus.py"
+  },
+  "result": {
+    "state": "done",
+    "id": "33d8_1",
+    "output": ""
+  },
+  "cancelled": {
+    "menu": false,
+    "wifi_connected": true,
+    "wifi_busy": false,
+    "library_count": 0,
+    "rendered_at_ms": 20165,
+    "network_count": 0,
+    "clock": "17:55",
+    "usb_connected": true,
+    "page": "home"
+  }
+}

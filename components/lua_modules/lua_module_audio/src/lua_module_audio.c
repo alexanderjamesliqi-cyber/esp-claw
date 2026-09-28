@@ -60,6 +60,7 @@ int luaopen_audio(lua_State *L)
         {NULL, NULL},
     };
     static const luaL_Reg funcs[] = {
+        {"stream_converter", lua_audio_stream_converter},
         {"new_output", lua_audio_new_output},
         {"new_input",  lua_audio_new_input},
         {"player",     lua_audio_player_new},

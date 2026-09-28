@@ -1,0 +1,533 @@
+{
+  "cleanup": [
+    {
+      "path": "/labplus/qa_gc_finalizer.py",
+      "absent": true
+    },
+    {
+      "path": "/labplus/qa_scheduled_callback.py",
+      "absent": true
+    },
+    {
+      "path": "/labplus/qa_machine_timer.py",
+      "absent": true
+    },
+    {
+      "path": "/labplus/qa_machine_rtc.py",
+      "absent": true
+    },
+    {
+      "path": "/labplus/qa_pin_irq.py",
+      "absent": true
+    },
+    {
+      "path": "/labplus/qa_builtin_sum.py",
+      "absent": true
+    },
+    {
+      "path": "/labplus/qa_builtin_all.py",
+      "absent": true
+    },
+    {
+      "path": "/labplus/qa_builtin_max.py",
+      "absent": true
+    },
+    {
+      "path": "/labplus/qa_builtin_min.py",
+      "absent": true
+    },
+    {
+      "path": "/labplus/qa_bigint_error.py",
+      "absent": true
+    },
+    {
+      "path": "/labplus/qa_bigint_mul.py",
+      "absent": true
+    },
+    {
+      "path": "/labplus/qa_bigint_div.py",
+      "absent": true
+    },
+    {
+      "path": "/labplus/qa_bigint_str.py",
+      "absent": true
+    },
+    {
+      "path": "/labplus/qa_bigint_parse.py",
+      "absent": true
+    },
+    {
+      "path": "/labplus/qa_str_find.py",
+      "absent": true
+    },
+    {
+      "path": "/labplus/qa_str_count.py",
+      "absent": true
+    },
+    {
+      "path": "/labplus/qa_str_split.py",
+      "absent": true
+    },
+    {
+      "path": "/labplus/qa_str_rsplit.py",
+      "absent": true
+    },
+    {
+      "path": "/labplus/qa_loop.py",
+      "absent": true
+    },
+    {
+      "path": "/labplus/qa_catch.py",
+      "absent": true
+    },
+    {
+      "path": "/labplus/qa_finally.py",
+      "absent": true
+    },
+    {
+      "path": "/labplus/qa_sleep_ms.py",
+      "absent": true
+    },
+    {
+      "path": "/labplus/qa_sleep_us.py",
+      "absent": true
+    },
+    {
+      "path": "/labplus/qa_input.py",
+      "absent": true
+    },
+    {
+      "path": "/labplus/qa_oom.py",
+      "absent": true
+    },
+    {
+      "path": "/labplus/qa_recursion.py",
+      "absent": true
+    },
+    {
+      "path": "/labplus/qa_json_depth.py",
+      "absent": true
+    },
+    {
+      "path": "/labplus/qa_file_readall.py",
+      "absent": true
+    },
+    {
+      "path": "/labplus/qa_file_oom.py",
+      "absent": true
+    },
+    {
+      "path": "/labplus/qa_exception.py",
+      "absent": true
+    },
+    {
+      "path": "/labplus/qa_native.py",
+      "absent": true
+    },
+    {
+      "path": "/labplus/qa_viper.py",
+      "absent": true
+    },
+    {
+      "path": "/labplus/qa_fd.py",
+      "absent": true
+    },
+    {
+      "path": "/labplus/qa_dir.py",
+      "absent": true
+    },
+    {
+      "path": "/labplus/qa_fd_quota.py",
+      "absent": true
+    },
+    {
+      "path": "/labplus/qa_fd_abort.py",
+      "absent": true
+    },
+    {
+      "path": "/labplus/qa_print.py",
+      "absent": true
+    },
+    {
+      "path": "/labplus/qa_ok.py",
+      "absent": true
+    },
+    {
+      "path": "/labplus/qa_wifi.py",
+      "absent": true
+    },
+    {
+      "path": "/labplus/qa_api.lua",
+      "removed": true
+    },
+    {
+      "path": "/labplus/qa_soak.lua",
+      "absent": true
+    },
+    {
+      "path": "/labplus/qa_soak_results.json",
+      "absent": true
+    },
+    {
+      "path": "/labplus/qa_soak_progress.json",
+      "absent": true
+    },
+    {
+      "path": "/labplus/qa_scan_probe.lua",
+      "absent": true
+    },
+    {
+      "path": "/labplus/qa_scan_results.json",
+      "absent": true
+    },
+    {
+      "path": "/labplus/qa_arithmetic.py",
+      "absent": true
+    },
+    {
+      "path": "/labplus/qa_display.py",
+      "absent": true
+    },
+    {
+      "path": "/labplus/qa_upload_load.bin",
+      "removed": true
+    },
+    {
+      "path": "/labplus/qa_upload_guard.bin",
+      "removed": true
+    },
+    {
+      "path": "/labplus/qa_voice_stall.bin",
+      "absent": true
+    },
+    {
+      "path": "/labplus/qa_ws_gc.lua",
+      "absent": true
+    },
+    {
+      "path": "/labplus/qa_startup.lua",
+      "absent": true
+    },
+    {
+      "path": "/labplus/qa_bigint.py",
+      "absent": true
+    },
+    {
+      "path": "/labplus/qa_stability_catch.py",
+      "absent": true
+    },
+    {
+      "path": "/labplus/qa_stability_sleep_us.py",
+      "absent": true
+    },
+    {
+      "path": "/labplus/qa_stability_fd.py",
+      "absent": true
+    },
+    {
+      "path": "/programs/qa_startup.py",
+      "absent": true
+    },
+    {
+      "path": "/.mpy_claw/faded20260928_1",
+      "removed": true
+    },
+    {
+      "path": "/.mpy_claw/faded20260928_soak",
+      "absent": true
+    },
+    {
+      "path": "/.mpy_claw/faded20260928_2",
+      "absent": true
+    },
+    {
+      "path": "/.mpy_claw/faded20260928_3",
+      "absent": true
+    },
+    {
+      "path": "/programs/qa_soak_ok.py",
+      "absent": true
+    },
+    {
+      "path": "/programs/qa_soak_fd.py",
+      "absent": true
+    },
+    {
+      "path": "/programs/qa_soak_dir.py",
+      "absent": true
+    },
+    {
+      "path": "/programs/qa_soak_oom.py",
+      "absent": true
+    }
+  ],
+  "sd_core_files": {
+    "claw_bridge.lua": {
+      "sha256": "27f05e0ea43f69856bc0c5fa54bd2f09930a8eceabe3fd041c6dd6747e74a766",
+      "match": true
+    },
+    "esp_claw.py": {
+      "sha256": "50a0e9277c7133ad4cee7818119ead025be97a7e063d61262523343f55b51314",
+      "match": true
+    },
+    "labplus/__init__.py": {
+      "sha256": "19595ce76134bfcd20b22beac5b4d070ee5bcedee59eac30abc714e446190d1a",
+      "match": true
+    },
+    "labplus/agent_bridge.lua": {
+      "sha256": "27978a48876caecbfbabfc4798f1ba69478897de7f39ca637bd1ce5133bb9ad6",
+      "match": true
+    },
+    "labplus/board_context.md": {
+      "sha256": "11ccd1780ce2447e4b95a0ab827d4213eade1b743f7480dfb7714adcde9b34c2",
+      "match": true
+    },
+    "labplus/font24.bin": {
+      "sha256": "417b2bfe337091c67576ada0d4d600c8278978fdd8683accb891cba3b64001ff",
+      "match": true
+    },
+    "labplus/font24.json": {
+      "sha256": "ed44fd4ddee56891568f140f5b7dbdaaaf75d067d7a922ecf54b82d9e45f6f56",
+      "match": true
+    },
+    "labplus/fonts/body-00.bin": {
+      "sha256": "8092d930ac6f0c6ab9ef3cb8117efffd33217eb60e02924ebe92ba24ae009494",
+      "match": true
+    },
+    "labplus/fonts/body-01.bin": {
+      "sha256": "76c1ee4665d4e41795a48d46efc6b8e32510f473ea98071e14069ce462f35664",
+      "match": true
+    },
+    "labplus/fonts/body-02.bin": {
+      "sha256": "374ec07ffd48a0cc8c2ae7a77cb046c077b0df946556ac163d19f03af5ffadfe",
+      "match": true
+    },
+    "labplus/fonts/body-03.bin": {
+      "sha256": "3bfc2434a367a70adc1483619097595e8c556bfedf586df2a298b6063bebc875",
+      "match": true
+    },
+    "labplus/fonts/body-04.bin": {
+      "sha256": "ce8085f0265bcfc996d9f70e5b7c4c22987b8788eb9408464a815b734108bccf",
+      "match": true
+    },
+    "labplus/fonts/body-05.bin": {
+      "sha256": "f4d623c1f63c8d81c02936d88f26b23400faecb5186d3ff9af0c0b248b5a9e71",
+      "match": true
+    },
+    "labplus/fonts/body-06.bin": {
+      "sha256": "e028d8aee18886f2e50e31f948b6936f9b8c1a58002aee79d159bdc87500390f",
+      "match": true
+    },
+    "labplus/fonts/body-07.bin": {
+      "sha256": "7c48f7f7028509825e575b6ecaff9f5f7a18e602a70065d33cf34e2a2c686c7b",
+      "match": true
+    },
+    "labplus/fonts/body-08.bin": {
+      "sha256": "331a7bdc93d568aad8e006401aba2576b72433e92bb7f6591e8683f7ea7dc4a2",
+      "match": true
+    },
+    "labplus/fonts/body-09.bin": {
+      "sha256": "be6da6bfc6a013d358ead01ecd49a2a07bf1c350722da0f3b389186fca89bec1",
+      "match": true
+    },
+    "labplus/fonts/body-10.bin": {
+      "sha256": "23997c1869837f87ca1fd42cab5ca14df131c0dd2cc589fe119180cae7938b56",
+      "match": true
+    },
+    "labplus/fonts/body-11.bin": {
+      "sha256": "36ea72051615a5a9a67853d0959efbae94b4068677dbfa49c0ea2d78c4f90fbe",
+      "match": true
+    },
+    "labplus/fonts/body-12.bin": {
+      "sha256": "2391a438d94db99dd54c1c956c9384203afd2f20b4bfa101064a54b826780728",
+      "match": true
+    },
+    "labplus/fonts/body-13.bin": {
+      "sha256": "b76a8346bf1c5d928df7fac16935da17039917d3ff6119dd40c947703c2f3c02",
+      "match": true
+    },
+    "labplus/fonts/body-14.bin": {
+      "sha256": "945adcb9aa0b9cc7f12960abc335468e7785a4a7a58ed9b6c96355d9584113dc",
+      "match": true
+    },
+    "labplus/fonts/body-15.bin": {
+      "sha256": "4bf202a5457fa0e277776a93433d08e53167b3ca54ea190b8293c4721c637235",
+      "match": true
+    },
+    "labplus/fonts/body-16.bin": {
+      "sha256": "48a5518a225c89bb80552cb9d71999dbbcc83b0f9f6c5805d7c4b7f4565ae37e",
+      "match": true
+    },
+    "labplus/fonts/body-17.bin": {
+      "sha256": "ea12c015e9371d1b0284d5f286ed98f58fd35622d4eb0d72c154b9e8826446cd",
+      "match": true
+    },
+    "labplus/fonts/body-18.bin": {
+      "sha256": "f4c9220ef6b960742232ab699304d00ebca7a4c997fe4fc4544cb0a1263dc785",
+      "match": true
+    },
+    "labplus/fonts/body-19.bin": {
+      "sha256": "4d7a999736ce8a8bfd915b356587e74344f7dc241bb8262cad1b1d8e7cee3339",
+      "match": true
+    },
+    "labplus/fonts/body-20.bin": {
+      "sha256": "fbd84030d1a2c2d344af8320b39d6eee71a4648bb618cfb3fca28a6bcb599df9",
+      "match": true
+    },
+    "labplus/fonts/body-21.bin": {
+      "sha256": "114a91056fe93c05a04314e85e68bf5fec497107f11010a900758df696e4130b",
+      "match": true
+    },
+    "labplus/fonts/body-22.bin": {
+      "sha256": "c42fa33d9b065194b780787e3a4473c1c169e9cd166e98c538ec03a00448817a",
+      "match": true
+    },
+    "labplus/fonts/body-23.bin": {
+      "sha256": "5d375ae05bf1bc030c03e7fb6975a455348667b7ec7ec6a9e7a2c89f6b71c53e",
+      "match": true
+    },
+    "labplus/fonts/body-24.bin": {
+      "sha256": "e9e33d08d3fd52b00fff00ae836293bc72480d75f87229770f941f40ddf216cf",
+      "match": true
+    },
+    "labplus/fonts/body-25.bin": {
+      "sha256": "34e8260e581b63d28718de70dbe089470c5eaf692ec15276117b7f3ec71113c9",
+      "match": true
+    },
+    "labplus/fonts/body-26.bin": {
+      "sha256": "12905c8e340ac14fed2d211300e003c9437366c6bb7c45d53f376e92de7a5eea",
+      "match": true
+    },
+    "labplus/fonts/body-27.bin": {
+      "sha256": "e57679bcd1c8bc26080c98427bd71e0a54a3db4df6dd8834862100212f6a8937",
+      "match": true
+    },
+    "labplus/fonts/heading.bin": {
+      "sha256": "9fb0f8253caf8b47e7da92d4425ac9e9d41ca1abe912e8bc9b5326658fd1ad06",
+      "match": true
+    },
+    "labplus/fonts/heading.json": {
+      "sha256": "45e99d1ad90a98ab0453008293478cd64313fe6a0f3796ff840724f0c9589b2d",
+      "match": true
+    },
+    "labplus/fonts/manifest.json": {
+      "sha256": "1528a482fdddd0cebbe35024eea9ddb2e9e50e9ebb3174f29d206ad583fd2f64",
+      "match": true
+    },
+    "labplus/generated_runner.py": {
+      "sha256": "8f89dda6829dfe96b414beb9f06251e8a666ccf5dfa83fcdb63adef80ec03984",
+      "match": true
+    },
+    "labplus/limits.lua": {
+      "sha256": "1b3ff82b8675365e2dace44142a7e0050d0825c84b53b541e3082d459405e57f",
+      "match": true
+    },
+    "labplus/logo-source.json": {
+      "sha256": "0b90994eea6477d2834eb74526ba0b136152fa94d3da84b59b73d57f7e011999",
+      "match": true
+    },
+    "labplus/logo.rgb565": {
+      "sha256": "011cfb015b8fe8b93a2ab97cd3d7d015238a4b35b35aab703d2882a99486ce78",
+      "match": true
+    },
+    "labplus/programs.lua": {
+      "sha256": "2130d77ae65f73d738f5991dbf34c2162bc48786d08b98c9be4d500744426526",
+      "match": true
+    },
+    "labplus/resources.lua": {
+      "sha256": "2c7b9fe749f53f676918d438b9c20c0e3deb913827248bea05cc3583ecfac068",
+      "match": true
+    },
+    "labplus/shell.lua": {
+      "sha256": "7ffd2727e6a14f5325c7956df68fcb9cca8a9c043c0b0d895dbe41ef5e2be306",
+      "match": true
+    },
+    "labplus/text.lua": {
+      "sha256": "a6b7a546bf2e34b9bd094ece412cd468fdf6c0355d5f2689267cbea354b295df",
+      "match": true
+    },
+    "labplus/ui.lua": {
+      "sha256": "f6008ddc1a507abb4e17851141c5f7aa9212b37bd0f8a0c796969fc69ecf6a43",
+      "match": true
+    },
+    "labplus/voice.lua": {
+      "sha256": "b081d9691917cfb870a3001281e732cd7c33ffafc92e9afab8262520718fa495",
+      "match": true
+    }
+  },
+  "config_restored": {
+    "startup-program.json": true,
+    "program-selection.json": true
+  },
+  "firmware_sha256": "a45113a2db9b037e66a6e2e9cf4bc2f1abe28f18717e6ac68ecae50029069d6c",
+  "voice": {
+    "active": false
+  },
+  "diagnostics": {
+    "page": {
+      "page": "home",
+      "menu": false
+    },
+    "internal": {
+      "caps": 2048,
+      "minimum_free_size": 91351,
+      "free_blocks": 40,
+      "total_blocks": 350,
+      "total_size": 390035,
+      "free_size": 110427,
+      "allocated_blocks": 310,
+      "allocated_size": 274008,
+      "largest_free_block": 31744
+    },
+    "lua_kb": 717.736328125,
+    "psram": {
+      "caps": 1024,
+      "minimum_free_size": 22465768,
+      "free_blocks": 214,
+      "total_blocks": 13137,
+      "total_size": 28806288,
+      "free_size": 23560688,
+      "allocated_blocks": 12923,
+      "allocated_size": 5189872,
+      "largest_free_block": 22020096
+    }
+  },
+  "heartbeat_advanced_ms": 5026,
+  "memory": {
+    "lua_kb": 539.1376953125,
+    "internal": {
+      "caps": 2048,
+      "minimum_free_size": 91351,
+      "free_blocks": 40,
+      "total_blocks": 350,
+      "total_size": 390035,
+      "free_size": 110427,
+      "allocated_blocks": 310,
+      "allocated_size": 274008,
+      "largest_free_block": 31744
+    },
+    "at_ms": 380165,
+    "psram": {
+      "caps": 1024,
+      "minimum_free_size": 22465768,
+      "free_blocks": 326,
+      "total_blocks": 10889,
+      "total_size": 28806288,
+      "free_size": 23755928,
+      "allocated_blocks": 10563,
+      "allocated_size": 5004072,
+      "largest_free_block": 22020096
+    }
+  },
+  "product": {
+    "wifi_connected": true,
+    "usb_connected": true,
+    "clock": "20:03",
+    "page": "home",
+    "rendered_at_ms": 367743,
+    "menu": false,
+    "network_count": 0,
+    "wifi_busy": false,
+    "library_count": 7
+  }
+}

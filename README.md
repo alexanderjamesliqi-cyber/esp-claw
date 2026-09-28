@@ -1,3 +1,6 @@
+> **Labplus 乐动 Max / MicroPython 产品集成版**
+> 个人维护分支 `labplus-claw`。使用与构建见 [Labplus 集成说明](integration/labplus/README.md)，交互与资源预算见 [产品说明](integration/labplus/PRODUCT.md)，实测范围与修复记录见 [稳定性报告](integration/labplus/validation/STABILITY.md)。固件包通过本仓库 Releases 提供。工程测试版，不代表量产或长期老化认证。
+
 <div align="center">
 
   <a href="https://esp-claw.com/en/">

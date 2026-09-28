@@ -11,3 +11,7 @@ idf_component_register(
         freertos
         heap
 )
+
+if(CONFIG_SOC_USB_SERIAL_JTAG_SUPPORTED)
+    idf_component_optional_requires(PRIVATE esp_driver_usb_serial_jtag)
+endif()

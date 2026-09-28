@@ -1,0 +1,279 @@
+[
+  {
+    "id": "mpy_bridge_startup",
+    "enabled": true,
+    "consume_on_match": false,
+    "match": {
+      "source_cap": "app_claw",
+      "event_type": "startup",
+      "event_key": "boot_completed"
+    },
+    "actions": [
+      {
+        "type": "run_script",
+        "input": {
+          "path": "/sdcard/claw_bridge.lua",
+          "async": true,
+          "timeout_ms": 0,
+          "name": "mpy_bridge",
+          "exclusive": "mpy_bridge",
+          "replace": true
+        }
+      }
+    ]
+  },
+  {
+    "id": "mpy_bridge_agent_request",
+    "enabled": true,
+    "consume_on_match": true,
+    "match": {
+      "source_cap": "micropython_bridge",
+      "event_type": "mpy_request",
+      "source_channel": "micropython"
+    },
+    "actions": [
+      {
+        "type": "run_agent",
+        "input": {
+          "target_channel": "micropython",
+          "session_policy": "nosave"
+        }
+      }
+    ]
+  },
+  {
+    "id": "mpy_bridge_agent_reply",
+    "enabled": true,
+    "consume_on_match": true,
+    "match": {
+      "source_cap": "claw_core",
+      "event_type": "out_message",
+      "source_channel": "micropython"
+    },
+    "actions": [
+      {
+        "type": "call_cap",
+        "cap": "write_file",
+        "input": {
+          "path": "/sdcard/labplus/claw-answer.txt",
+          "content": "{{event.text}}"
+        }
+      },
+      {
+        "type": "call_cap",
+        "cap": "write_file",
+        "input": {
+          "path": "/sdcard/labplus/claw-answer.id",
+          "content": "{{event.correlation_id}}"
+        }
+      },
+      {
+        "type": "call_cap",
+        "cap": "write_file",
+        "input": {
+          "path": "/sdcard/.mpy_claw/{{event.correlation_id}}/answer.txt",
+          "content": "{{event.text}}"
+        }
+      },
+      {
+        "type": "call_cap",
+        "cap": "write_file",
+        "input": {
+          "path": "/sdcard/.mpy_claw/{{event.correlation_id}}/status.tmp",
+          "content": "{\"id\":\"{{event.correlation_id}}\",\"status\":\"{{event.payload.status}}\"}"
+        }
+      },
+      {
+        "type": "call_cap",
+        "cap": "move_file",
+        "input": {
+          "src_path": "/sdcard/.mpy_claw/{{event.correlation_id}}/status.tmp",
+          "dst_path": "/sdcard/.mpy_claw/{{event.correlation_id}}/status.json"
+        }
+      }
+    ]
+  },
+  {
+    "id": "mpy_bridge_agent_stage",
+    "enabled": true,
+    "consume_on_match": true,
+    "match": {
+      "source_cap": "claw_core",
+      "event_type": "agent_stage",
+      "source_channel": "micropython"
+    },
+    "actions": [
+      {
+        "type": "drop",
+        "input": {}
+      }
+    ]
+  },
+  {
+    "id": "im_session_command",
+    "description": "Handle persistent chat session commands when the user sends /session.",
+    "enabled": true,
+    "consume_on_match": true,
+    "ack": "{{event.source_channel}} session command handled",
+    "match": {
+      "event_type": "message",
+      "event_key": "text",
+      "content_type": "text",
+      "text": "/session",
+      "text_match_rule": "prefix"
+    },
+    "actions": [
+      {
+        "type": "call_cap",
+        "cap": "session_command",
+        "input": {
+          "command": "{{match.remainder}}"
+        }
+      },
+      {
+        "type": "send_message",
+        "input": {
+          "channel": "{{event.source_channel}}",
+          "chat_id": "{{event.chat_id}}"
+        }
+      }
+    ]
+  },
+  {
+    "id": "im_llm_command",
+    "description": "Handle LLM configuration commands when the user sends /llm.",
+    "enabled": true,
+    "consume_on_match": true,
+    "ack": "{{event.source_channel}} LLM command handled",
+    "match": {
+      "event_type": "message",
+      "event_key": "text",
+      "content_type": "text",
+      "text": "/llm",
+      "text_match_rule": "prefix"
+    },
+    "actions": [
+      {
+        "type": "call_cap",
+        "cap": "llm_config_command",
+        "input": {
+          "command": "{{match.remainder}}"
+        }
+      },
+      {
+        "type": "send_message",
+        "input": {
+          "channel": "{{event.source_channel}}",
+          "chat_id": "{{event.chat_id}}"
+        }
+      }
+    ]
+  },
+  {
+    "id": "im_any_message_working_reply",
+    "description": "Reply to any IM text message before other automation handling.",
+    "enabled": true,
+    "consume_on_match": false,
+    "ack": "{{event.source_channel}} working reply sent",
+    "match": {
+      "event_type": "message",
+      "event_key": "text",
+      "content_type": "text"
+    },
+    "actions": [
+      {
+        "type": "send_message",
+        "input": {
+          "channel": "{{event.source_channel}}",
+          "chat_id": "{{event.chat_id}}",
+          "message": "🦞 ESP-Claw is snapping on it..."
+        }
+      }
+    ]
+  },
+  {
+    "id": "im_attachment_saved_reply",
+    "description": "Reply when an IM attachment is saved.",
+    "enabled": true,
+    "ack": "{{event.channel}} attachment saved",
+    "match": {
+      "event_type": "attachment_saved"
+    },
+    "actions": [
+      {
+        "type": "send_message",
+        "input": {
+          "channel": "{{event.source_channel}}",
+          "chat_id": "{{event.chat_id}}",
+          "message": "File received from {{event.source_channel}}"
+        }
+      }
+    ]
+  },
+  {
+    "id": "im_any_message_agent",
+    "description": "Route IM text messages to the agent.",
+    "enabled": true,
+    "consume_on_match": true,
+    "ack": "{{event.source_channel}} routed to agent",
+    "match": {
+      "event_type": "message",
+      "event_key": "text",
+      "content_type": "text"
+    },
+    "actions": [
+      {
+        "type": "run_agent",
+        "input": {
+          "target_channel": "{{event.source_channel}}",
+          "session_policy": "chat"
+        }
+      }
+    ]
+  },
+  {
+    "id": "agent_stage_im_notify",
+    "description": "Deliver agent stage progress messages to the original IM chat.",
+    "enabled": true,
+    "consume_on_match": true,
+    "ack": "{{event.source_channel}} agent stage sent",
+    "match": {
+      "source_cap": "claw_core",
+      "event_type": "agent_stage",
+      "content_type": "text"
+    },
+    "actions": [
+      {
+        "type": "send_message",
+        "input": {
+          "event_type": "{{event.event_type}}",
+          "channel": "{{event.source_channel}}",
+          "chat_id": "{{event.chat_id}}",
+          "message": "{{event.text}}"
+        }
+      }
+    ]
+  },
+  {
+    "id": "agent_out_message_send_message",
+    "description": "Deliver agent output messages to the original IM chat.",
+    "enabled": true,
+    "consume_on_match": true,
+    "ack": "{{event.source_channel}} agent output sent",
+    "match": {
+      "source_cap": "claw_core",
+      "event_type": "out_message",
+      "content_type": "text"
+    },
+    "actions": [
+      {
+        "type": "send_message",
+        "input": {
+          "channel": "{{event.source_channel}}",
+          "chat_id": "{{event.chat_id}}",
+          "message": "{{event.text}}"
+        }
+      }
+    ]
+  }
+]

@@ -94,3 +94,11 @@ print(heap_info.free_size, heap_info.largest_free_block)
 local task = system.heap.get_current_task()
 print(task.name, task.stack_high_water_mark_bytes)
 ```
+
+### `system.usb_connected()`
+Returns whether the built-in USB Serial/JTAG controller is receiving host SOF packets.
+A charging-only connection is false. Unsupported controllers return false.
+
+### `system.recovery_boot()`
+Returns true after panic or watchdog reset. Product startup uses this to skip a saved
+user program for this boot, while keeping its selection available for review.

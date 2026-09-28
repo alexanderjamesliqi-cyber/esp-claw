@@ -1,0 +1,15 @@
+diff --git a/components/hal/esp32p4/include/hal/usb_serial_jtag_ll.h b/components/hal/esp32p4/include/hal/usb_serial_jtag_ll.h
+index fe835881..019d351f 100644
+--- a/components/hal/esp32p4/include/hal/usb_serial_jtag_ll.h
++++ b/components/hal/esp32p4/include/hal/usb_serial_jtag_ll.h
+@@ -139,7 +139,9 @@ static inline int usb_serial_jtag_ll_write_txfifo(const uint8_t *buf, uint32_t w
+     int i;
+     for (i = 0; i < (int)wr_len; i++) {
+         if (!USB_SERIAL_JTAG.ep1_conf.serial_in_ep_data_free) break;
+-        HAL_FORCE_MODIFY_U32_REG_FIELD(USB_SERIAL_JTAG.ep1, rdwr_byte, buf[i]);
++        // EP1 reads dequeue RX data: a read-modify-write during TX loses input.
++        // Match the upstream ESP32-P4 HAL's write-only FIFO access.
++        USB_SERIAL_JTAG.ep1.val = buf[i];
+     }
+     return i;
+ }

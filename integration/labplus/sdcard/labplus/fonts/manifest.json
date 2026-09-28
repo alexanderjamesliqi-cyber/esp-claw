@@ -1,0 +1,31 @@
+{
+  "body_size": 24,
+  "heading_size": 32,
+  "alpha_bits": 4,
+  "ranges": [
+    [
+      32,
+      126
+    ],
+    [
+      8192,
+      8303
+    ],
+    [
+      12288,
+      12543
+    ],
+    [
+      13312,
+      40959
+    ],
+    [
+      65280,
+      65519
+    ]
+  ],
+  "shard_glyphs": 1024,
+  "glyph_count": 28351,
+  "font": "Noto Sans SC Medium / Roboto Mono Medium",
+  "license": "SIL Open Font License 1.1"
+}

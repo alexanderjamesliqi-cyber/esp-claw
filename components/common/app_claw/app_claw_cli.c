@@ -750,8 +750,15 @@ static void register_cap_cli_commands(void)
 #endif
 }
 
+#if CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG
+void app_claw_usb_console_link(void);
+#endif
+
 esp_err_t app_claw_cli_start(void)
 {
+#if CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG
+    app_claw_usb_console_link();
+#endif
     esp_console_repl_t *repl = NULL;
     esp_console_repl_config_t repl_config = ESP_CONSOLE_REPL_CONFIG_DEFAULT();
 

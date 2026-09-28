@@ -150,3 +150,12 @@ player:play(path, { wait = true })
 player:close()
 output:close()
 ```
+
+## Streaming PCM conversion
+
+`audio.stream_converter(source_format, destination_format)` creates a persistent
+resampler/channel converter. Formats use `sample_rate`, `channels`, and `bits`.
+`converter:process(pcm)` returns converted PCM; input must contain complete sample
+frames and be at most 256 KiB. Call `converter:close()` after use; GC also releases
+its buffers. Reuse the converter across successive chunks to preserve its filter
+state. Converters own no codec device and must be used from their creating Lua job.

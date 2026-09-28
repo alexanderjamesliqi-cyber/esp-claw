@@ -13,6 +13,11 @@
 #include "esp_heap_caps.h"
 #include "esp_netif.h"
 #include "esp_timer.h"
+#include "esp_system.h"
+#include "soc/soc_caps.h"
+#if SOC_USB_SERIAL_JTAG_SUPPORTED
+#include "driver/usb_serial_jtag.h"
+#endif
 #include "esp_wifi.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -186,6 +191,23 @@ static void lua_module_system_push_heap_table(lua_State *L)
     lua_setfield(L, -2, "caps");
 }
 
+static int lua_module_system_usb_connected(lua_State *L)
+{
+#if SOC_USB_SERIAL_JTAG_SUPPORTED
+    lua_pushboolean(L, usb_serial_jtag_is_connected());
+#else
+    lua_pushboolean(L, false);
+#endif
+    return 1;
+}
+static int lua_module_system_recovery_boot(lua_State *L)
+{
+    esp_reset_reason_t reason = esp_reset_reason();
+    lua_pushboolean(L, reason == ESP_RST_PANIC || reason == ESP_RST_INT_WDT ||
+                    reason == ESP_RST_TASK_WDT || reason == ESP_RST_WDT);
+    return 1;
+}
+
 static int lua_module_system_time(lua_State *L)
 {
     time_t now;
@@ -326,6 +348,10 @@ int luaopen_system(lua_State *L)
 {
     lua_newtable(L);
 
+    lua_pushcfunction(L, lua_module_system_usb_connected);
+    lua_setfield(L, -2, "usb_connected");
+    lua_pushcfunction(L, lua_module_system_recovery_boot);
+    lua_setfield(L, -2, "recovery_boot");
     lua_pushcfunction(L, lua_module_system_time);
     lua_setfield(L, -2, "time");
 

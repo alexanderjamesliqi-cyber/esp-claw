@@ -129,10 +129,12 @@ list(APPEND MICROPY_SOURCE_EXTMOD
 
 # ── Port sources: our custom files ───────────────────────────────────
 list(APPEND MICROPY_SOURCE_PORT
+    ${CMAKE_CURRENT_LIST_DIR}/src/mpy_owned_io.c
     ${CMAKE_CURRENT_LIST_DIR}/src/mphalport.c
     ${CMAKE_CURRENT_LIST_DIR}/src/gccollect.c
     ${CMAKE_CURRENT_LIST_DIR}/src/lvgl_roots.c
     ${CMAKE_CURRENT_LIST_DIR}/src/modmachine_esp32.c
+    ${CMAKE_CURRENT_LIST_DIR}/src/modlabplus_wifi.c
 )
 
 # ── Port sources: selected official ESP32 port files ─────────────────
@@ -146,6 +148,26 @@ list(APPEND CAP_MPY_SOURCE
     ${CMAKE_CURRENT_LIST_DIR}/src/cap_mpy_async.c
     ${CMAKE_CURRENT_LIST_DIR}/src/cmd_cap_mpy.c
 )
+
+# Long C arithmetic/string loops must honor the same stop/deadline as bytecode.
+if(NOT CMAKE_BUILD_EARLY_EXPANSION)
+set(MANAGED_CORE_DIR ${CMAKE_CURRENT_BINARY_DIR}/managed_core)
+set(MANAGED_CORE_GENERATOR ${CMAKE_CURRENT_LIST_DIR}/tools/harden_core.py)
+execute_process(COMMAND ${PYTHON} ${MANAGED_CORE_GENERATOR}
+    ${MICROPY_PY_DIR} ${MANAGED_CORE_DIR} RESULT_VARIABLE MANAGED_CORE_RESULT)
+if(NOT MANAGED_CORE_RESULT EQUAL 0)
+    message(FATAL_ERROR "MicroPython cooperative core generation failed")
+endif()
+foreach(core mpz objstr runtime)
+    list(REMOVE_ITEM MICROPY_SOURCE_PY ${MICROPY_PY_DIR}/${core}.c)
+    list(APPEND MICROPY_SOURCE_PY ${MANAGED_CORE_DIR}/${core}.c)
+    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${MICROPY_PY_DIR}/${core}.c)
+endforeach()
+list(REMOVE_ITEM MICROPY_SOURCE_PORT ${MICROPY_ESP32_PORT_DIR}/machine_pin.c)
+list(APPEND MICROPY_SOURCE_PORT ${MANAGED_CORE_DIR}/machine_pin.c)
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
+    ${MANAGED_CORE_GENERATOR} ${MICROPY_ESP32_PORT_DIR}/machine_pin.c)
+endif()
 
 # ── All sources combined ─────────────────────────────────────────────
 set(ALL_MPY_SRCS
@@ -300,7 +322,8 @@ set(GEN_PINS_SRC "${CMAKE_BINARY_DIR}/pins.c")
 set(GEN_PINS_HDR "${MICROPY_GENHDR_BUILD_DIR}/pins.h")
 
 # Add pins.h to QSTR sources so QSTR generation waits for pin generation.
-list(APPEND MICROPY_SOURCE_QSTR ${GEN_PINS_HDR})
+list(APPEND MICROPY_SOURCE_QSTR ${GEN_PINS_HDR}
+    ${MICROPY_PORT_DIR}/mpconfigport.h)
 
 # ── Code generation rules (qstr, moduledefs, root_pointers) ─────────
 include(${MICROPY_DIR}/py/mkrules.cmake)
@@ -340,3 +363,9 @@ if(LVGL_SRC_DIR)
         ${LV_BINDINGS_DIR}/include
     )
 endif()
+
+# Attribute only MicroPython POSIX resources to the VM; do not wrap firmware I/O.
+set_source_files_properties(${MICROPY_EXTMOD_DIR}/vfs_posix_file.c PROPERTIES
+    COMPILE_DEFINITIONS "open=cap_mpy_owned_open;close=cap_mpy_owned_close;read=cap_mpy_owned_read;write=cap_mpy_owned_write")
+set_source_files_properties(${MICROPY_EXTMOD_DIR}/vfs_posix.c PROPERTIES
+    COMPILE_DEFINITIONS "opendir=cap_mpy_owned_opendir;closedir=cap_mpy_owned_closedir;readdir=cap_mpy_owned_readdir")

@@ -1,0 +1,62 @@
+[
+  {
+    "iteration": 0,
+    "bytes": 8000,
+    "render_job_s": 0.815094667,
+    "home_ms": 121
+  },
+  {
+    "iteration": 1,
+    "bytes": 7800,
+    "render_job_s": 1.7702323329999996,
+    "home_ms": 123
+  },
+  {
+    "iteration": 2,
+    "bytes": 8000,
+    "render_job_s": 0.8050950410000004,
+    "home_ms": 133
+  },
+  {
+    "iteration": 3,
+    "bytes": 7800,
+    "render_job_s": 1.5871093750000007,
+    "home_ms": 716
+  },
+  {
+    "iteration": 4,
+    "bytes": 8000,
+    "render_job_s": 0.8107846250000001,
+    "home_ms": 117
+  },
+  {
+    "iteration": 5,
+    "bytes": 7800,
+    "render_job_s": 1.7799060830000002,
+    "home_ms": 161
+  },
+  {
+    "iteration": 6,
+    "bytes": 8000,
+    "render_job_s": 1.0075277499999977,
+    "home_ms": 187
+  },
+  {
+    "iteration": 7,
+    "bytes": 7800,
+    "render_job_s": 1.7804417090000015,
+    "home_ms": 187
+  },
+  {
+    "iteration": 8,
+    "bytes": 8000,
+    "render_job_s": 1.015769917,
+    "home_ms": 166
+  },
+  {
+    "iteration": 9,
+    "bytes": 7800,
+    "render_job_s": 1.7824989999999978,
+    "home_ms": 657
+  }
+]

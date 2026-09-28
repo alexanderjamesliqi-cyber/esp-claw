@@ -16,6 +16,9 @@
 #include "esp_heap_caps.h"
 #include "esp_log.h"
 #include "esp_timer.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/semphr.h"
+#include "freertos/task.h"
 
 #include "py/builtin.h"
 #include "py/compile.h"
@@ -32,15 +35,59 @@
 
 #include "mphalport.h"
 #include "cap_mpy.h"
+#include "mpy_owned_io.h"
+
+#if !MICROPY_STACK_CHECK || !MICROPY_ENABLE_VM_ABORT || MICROPY_PY_THREAD
+#error "Managed Python requires stack checking and uncatchable VM abort"
+#endif
 
 static const char *TAG = "cap_mpy";
 
-#define CAP_MPY_GC_HEAP_SIZE    (128 * 1024)
+#define CAP_MPY_GC_HEAP_SIZE    (1024 * 1024)
 #define CAP_MPY_MAX_SCRIPT_SIZE (64 * 1024)
 #define CAP_MPY_DEFAULT_TIMEOUT_MS 60000
 
 static bool s_initialized = false;
 static void *s_gc_heap = NULL;
+
+static SemaphoreHandle_t s_vm_lock;
+static portMUX_TYPE s_vm_lock_mux=portMUX_INITIALIZER_UNLOCKED;
+static TaskHandle_t s_vm_owner;
+static volatile bool *s_vm_stop;
+static int64_t s_vm_deadline;
+static int64_t s_vm_last_yield;
+static bool s_vm_timed_out;
+static bool s_repl_active;
+static bool vm_take(void)
+{
+    SemaphoreHandle_t created=xSemaphoreCreateMutex();
+    portENTER_CRITICAL(&s_vm_lock_mux);
+    if (!s_vm_lock) { s_vm_lock=created;created=NULL; }
+    portEXIT_CRITICAL(&s_vm_lock_mux);
+    if (created) vSemaphoreDelete(created);
+    return s_vm_lock && xSemaphoreTake(s_vm_lock,0)==pdTRUE;
+}
+bool cap_mpy_cancel_pending(void)
+{
+    if (xTaskGetCurrentTaskHandle()!=s_vm_owner) return false;
+    if (s_vm_deadline && esp_timer_get_time()>=s_vm_deadline) s_vm_timed_out=true;
+    return s_vm_timed_out || (s_vm_stop && *s_vm_stop);
+}
+void cap_mpy_poll_hook(void)
+{
+    if (xTaskGetCurrentTaskHandle()!=s_vm_owner) return;
+    int64_t now=esp_timer_get_time();
+    if (s_vm_stop && *s_vm_stop) nlr_jump_abort();
+    if (s_vm_deadline && now>=s_vm_deadline) {
+        s_vm_timed_out=true;
+        nlr_jump_abort();
+    }
+    if (now-s_vm_last_yield>=10000) {
+        s_vm_last_yield=now;
+        if (s_repl_active && nlr_get_abort() && mp_hal_uart_interrupt_pending()) nlr_jump_abort();
+        vTaskDelay(1);
+    }
+}
 
 /* ------------------------------------------------------------------ */
 /*  MicroPython runtime init / deinit                                  */
@@ -53,7 +100,7 @@ esp_err_t cap_mpy_init(void)
     }
 
     /* Allocate GC heap (prefer PSRAM if available) */
-    s_gc_heap = heap_caps_malloc(CAP_MPY_GC_HEAP_SIZE, MALLOC_CAP_DEFAULT);
+    s_gc_heap = heap_caps_malloc(CAP_MPY_GC_HEAP_SIZE, heap_caps_get_total_size(MALLOC_CAP_SPIRAM)>0 ? MALLOC_CAP_SPIRAM|MALLOC_CAP_8BIT : MALLOC_CAP_DEFAULT);
     if (!s_gc_heap) {
         ESP_LOGE(TAG, "Failed to allocate MicroPython GC heap (%d bytes)", CAP_MPY_GC_HEAP_SIZE);
         return ESP_ERR_NO_MEM;
@@ -111,6 +158,7 @@ esp_err_t cap_mpy_deinit(void)
     }
 
     mp_deinit();
+    cap_mpy_owned_io_close_all();
 
     if (s_gc_heap) {
         heap_caps_free(s_gc_heap);
@@ -126,11 +174,20 @@ esp_err_t cap_mpy_deinit(void)
 /*  Synchronous script execution                                       */
 /* ------------------------------------------------------------------ */
 
+typedef struct { char *data; size_t capacity; size_t used; } mpy_error_sink_t;
+static void mpy_error_write(void *context,const char *text,size_t length)
+{
+    mpy_error_sink_t *sink=context;
+    size_t available=sink->capacity-sink->used-1;
+    size_t count=length<available ? length : available;
+    memcpy(sink->data+sink->used,text,count);sink->used+=count;sink->data[sink->used]='\0';
+}
+
 static esp_err_t cap_mpy_execute_file(const char *path,
                                       uint32_t timeout_ms,
                                       volatile bool *stop_requested,
                                       char *output,
-                                      size_t output_size)
+                                      size_t output_size, bool execute)
 {
     struct stat st = {0};
     esp_err_t ret = ESP_OK;
@@ -197,8 +254,9 @@ static esp_err_t cap_mpy_execute_file(const char *path,
     fclose(f);
     src_buf[nread] = '\0';
 
-    /* Compile and execute */
+    /* Abort to this host frame, outside user try/except and finally blocks. */
     nlr_buf_t nlr;
+    nlr_set_abort(&nlr);
     if (nlr_push(&nlr) == 0) {
         qstr source_name = qstr_from_str(path);
 
@@ -208,6 +266,7 @@ static esp_err_t cap_mpy_execute_file(const char *path,
             snprintf(output, output_size, "Error: cannot lex file: %s", path);
             free(src_buf);
             nlr_pop();
+            nlr_set_abort(NULL);
             return ESP_ERR_NOT_FOUND;
         }
 
@@ -217,63 +276,72 @@ static esp_err_t cap_mpy_execute_file(const char *path,
         mp_obj_t module_fun = mp_compile(&parse_tree, source_name, false);
 
         /* Execute */
-        mp_call_function_0(module_fun);
+        if (execute) mp_call_function_0(module_fun);
 
         /* Success */
-        free(src_buf);
         nlr_pop();
         if (output[0] == '\0') {
-            snprintf(output, output_size, "Python script completed successfully.\n");
+            snprintf(output, output_size, execute ? "Python script completed successfully.\n" : "Python syntax validated without execution.\n");
         }
     } else {
-        free(src_buf);
         /* Exception occurred — format it into output buffer */
         mp_obj_t exc = (mp_obj_t)nlr.ret_val;
-        vstr_t vstr;
-        mp_print_t pr;
-        vstr_init(&vstr, 256);
-        pr = (mp_print_t){ &vstr, (mp_print_strn_t)vstr_add_strn };
-        mp_obj_print_exception(&pr, exc);
-
-        size_t msg_len = vstr.len;
-        size_t copy_len = msg_len < output_size - 1 ? msg_len : output_size - 1;
-        memcpy(output, vstr.buf, copy_len);
-        output[copy_len] = '\0';
-        vstr_clear(&vstr);
+        /* A syntax/heap error must not allocate another GC buffer to report it. */
+        mpy_error_sink_t sink={.data=output,.capacity=output_size,.used=0};
+        mp_print_t pr={.data=&sink,.print_strn=mpy_error_write};
+        if (exc == MP_OBJ_NULL) snprintf(output,output_size,"Program %s by runtime.\n",s_vm_timed_out ? "timed out" : "stopped");
+        else mp_obj_print_exception(&pr,exc);
 
         ret = ESP_FAIL;
     }
 
+    nlr_set_abort(NULL);
+    /* Exception formatting can itself time out (e.g. a huge integer argument).
+     * Free once after the abort handler has fully completed, never before it. */
+    free(src_buf);
     return ret;
 }
 
-esp_err_t cap_mpy_run_script(const char *path,
-                             const char *args_json,
-                             uint32_t timeout_ms,
-                             char *output,
-                             size_t output_size)
+static esp_err_t cap_mpy_run_mode(const char *path,uint32_t timeout_ms,
+    volatile bool *stop,char *output,size_t output_size,bool execute)
 {
-    (void)args_json; /* TODO: pass args to Python script */
-
-    if (!s_initialized) {
-        esp_err_t err = cap_mpy_init();
-        if (err != ESP_OK) {
-            return err;
-        }
-    }
-
-    if (timeout_ms == 0) {
-        timeout_ms = CAP_MPY_DEFAULT_TIMEOUT_MS;
-    }
-
-    volatile bool stop_flag = false;
-    return cap_mpy_execute_file(path, timeout_ms, &stop_flag, output, output_size);
+    if (!output || !output_size) return ESP_ERR_INVALID_ARG;
+    if (!vm_take()) {snprintf(output,output_size,"Error: MicroPython is busy");return ESP_ERR_INVALID_STATE;}
+    cap_mpy_deinit();
+    esp_err_t err=cap_mpy_init();
+    if (err==ESP_OK) {
+        mp_stack_ctrl_init();mp_stack_set_limit(execute ? 6*1024 : 4*1024);
+        s_vm_stop=stop;s_vm_timed_out=false;s_vm_last_yield=esp_timer_get_time();
+        s_vm_deadline=timeout_ms ? s_vm_last_yield+(int64_t)timeout_ms*1000 : 0;
+        s_vm_owner=xTaskGetCurrentTaskHandle();
+        err=cap_mpy_execute_file(path,timeout_ms,stop,output,output_size,execute);
+        s_vm_owner=NULL;s_vm_stop=NULL;s_vm_deadline=0;
+        if (s_vm_timed_out) err=ESP_ERR_TIMEOUT;
+        cap_mpy_deinit();
+    } else snprintf(output,output_size,"Error: interpreter initialization failed");
+    xSemaphoreGive(s_vm_lock);
+    return err;
 }
-
+esp_err_t cap_mpy_run_controlled(const char *path,uint32_t timeout_ms,
+    volatile bool *stop,char *output,size_t output_size)
+{
+    return cap_mpy_run_mode(path,timeout_ms,stop,output,output_size,true);
+}
+esp_err_t cap_mpy_validate_script(const char *path,char *output,size_t output_size)
+{
+    volatile bool stop=false;
+    return cap_mpy_run_mode(path,2000,&stop,output,output_size,false);
+}
+esp_err_t cap_mpy_run_script(const char *path,const char *args_json,uint32_t timeout_ms,
+    char *output,size_t output_size)
+{
+    (void)args_json;
+    volatile bool stop=false;
+    return cap_mpy_run_controlled(path,timeout_ms ? timeout_ms : CAP_MPY_DEFAULT_TIMEOUT_MS,&stop,output,output_size);
+}
 bool cap_mpy_stop_requested(void)
 {
-    /* Phase 1: no global stop mechanism yet */
-    return false;
+    return xTaskGetCurrentTaskHandle()==s_vm_owner && s_vm_stop && *s_vm_stop;
 }
 
 /* ------------------------------------------------------------------ */
@@ -282,19 +350,24 @@ bool cap_mpy_stop_requested(void)
 
 void cap_mpy_repl(void)
 {
+    if (!vm_take()) {printf("MicroPython is busy\n");return;}
     if (!s_initialized) {
         esp_err_t err = cap_mpy_init();
         if (err != ESP_OK) {
             printf("MicroPython runtime not available\n");
-            return;
+            xSemaphoreGive(s_vm_lock);return;
         }
     }
 
+    mp_stack_ctrl_init();
+    mp_stack_set_limit(6*1024);
     /* Initialize event-driven REPL */
     pyexec_event_repl_init();
 
     /* Take over UART for direct character I/O */
     mp_hal_uart_open_repl();
+    s_repl_active=true;s_vm_owner=xTaskGetCurrentTaskHandle();
+    s_vm_deadline=0;s_vm_stop=NULL;s_vm_timed_out=false;s_vm_last_yield=esp_timer_get_time();
 
     printf("\r\nMicroPython REPL ready. Ctrl+D to exit.\r\n");
     fflush(stdout);
@@ -319,7 +392,10 @@ void cap_mpy_repl(void)
     }
 
     /* Release UART so esp_console/linenoise can read again */
+    s_repl_active=false;s_vm_owner=NULL;
     mp_hal_uart_close();
+    cap_mpy_deinit();
 
     printf("\r\nExiting MicroPython REPL.\r\n");
+    xSemaphoreGive(s_vm_lock);
 }

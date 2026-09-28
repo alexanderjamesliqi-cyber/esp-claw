@@ -26,3 +26,5 @@ if touch.just_pressed then
   print(touch.x, touch.y)
 end
 ```
+
+Polling reads the controller synchronously. When the shared display service is active, the read and cache consumption use its LVGL lock so another input reader cannot consume the sample between those operations. I2C or lock failures raise a Lua error; they are not reported as a physical release.

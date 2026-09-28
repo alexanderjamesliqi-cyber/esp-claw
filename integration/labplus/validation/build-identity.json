@@ -1,0 +1,31 @@
+{
+  "app_bytes": 4897952,
+  "sha256": "a45113a2db9b037e66a6e2e9cf4bc2f1abe28f18717e6ac68ecae50029069d6c",
+  "offset": "0x20000",
+  "flash_verified": true,
+  "changes": [
+    "sleep/cancel/REPL cooperative scheduling",
+    "owned file descriptors and iterators",
+    "enabled stack protection",
+    "abort bypasses user catch/finally",
+    "Wi-Fi cancellation and rollback",
+    "touch held-state cleanup",
+    "bounded 512-glyph FIFO cache",
+    "cooperative bounded POSIX read/write/readdir",
+    "USB RX/TX 4096 byte rings",
+    "cooperative bigint/string/iterator native loops",
+    "safe unsupported peripheral types and Pin IRQ rejection",
+    "font handles batched per line, closed on rendering errors",
+    "bounded Wi-Fi active scan dwell with home-channel airtime",
+    "ESP32-P4 USB FIFO TX direct MMIO store, never destructive RX read-modify-write",
+    "bounded HTTP upload idle retry; staged file replacement preserves originals on interrupted upload",
+    "voice configured credentials read in memory without localhost HTTP",
+    "bounded asynchronous WebSocket cleanup independent of Lua userdata",
+    "bounded asynchronous outgoing WebSocket queue keeps transport waits off UI",
+    "Wi-Fi scan cache 30s, explicit refresh cooldown 5s",
+    "dedicated bounded HTTP upload worker keeps dispatcher available during slow request bodies"
+  ],
+  "idf_commit": "735507283d5b2f9fb363a1901172dbd9e847945d",
+  "micropython_commit": "0fd6c573ea815774668bbb16b8e197c8822368b2",
+  "usb_fifo_reference": "https://github.com/espressif/esp-idf/blob/master/components/esp_hal_usb/esp32p4/include/hal/usb_serial_jtag_ll.h"
+}

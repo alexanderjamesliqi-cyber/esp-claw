@@ -44,6 +44,7 @@ portMUX_TYPE mp_atomic_mux = portMUX_INITIALIZER_UNLOCKED;
 
 /* UART fd for REPL direct access (-1 = not open, use ringbuf) */
 static int s_uart_fd = -1;
+static int s_uart_flags = -1;
 
 /* ── Error checking ─────────────────────────────────────────────────── */
 void check_esp_err_(esp_err_t code)
@@ -86,6 +87,8 @@ uintptr_t mp_hal_stdio_poll(uintptr_t poll_flags)
 int mp_hal_stdin_rx_chr(void)
 {
     for (;;) {
+        int buffered=ringbuf_get(&stdin_ringbuf);
+        if (buffered!=-1) return buffered;
         /* If REPL has taken over UART, read directly from fd */
         if (s_uart_fd >= 0) {
             uint8_t c;
@@ -109,16 +112,16 @@ int mp_hal_stdin_rx_chr(void)
 mp_uint_t mp_hal_stdout_tx_strn(const char *str, size_t len)
 {
     mp_uint_t ret = 0;
-    /* If REPL has taken over UART, write directly to fd */
-    if (s_uart_fd >= 0) {
-        int written = write(s_uart_fd, str, len);
-        if (written > 0) {
-            fsync(s_uart_fd);
-        }
-        return written > 0 ? (mp_uint_t)written : 0;
+    /* A large print must not monopolise the console or postpone cancellation. */
+    while (ret < len) {
+        cap_mpy_poll_hook();
+        size_t chunk = len - ret;
+        if (chunk > 256) chunk = 256;
+        int count = s_uart_fd>=0 ? write(s_uart_fd,str+ret,chunk) : (int)fwrite(str+ret,1,chunk,stdout);
+        size_t written=count>0 ? (size_t)count : 0;
+        ret += written;
+        if (written < chunk) break;
     }
-    /* Normal mode: write to stdout (which goes to esp_console/UART) */
-    ret = fwrite(str, 1, len, stdout);
     return ret;
 }
 
@@ -126,6 +129,7 @@ mp_uint_t mp_hal_stdout_tx_strn(const char *str, size_t len)
 void mp_hal_uart_close(void)
 {
     if (s_uart_fd >= 0) {
+        if (s_uart_flags>=0) fcntl(s_uart_fd,F_SETFL,s_uart_flags);
         close(s_uart_fd);
         s_uart_fd = -1;
     }
@@ -136,10 +140,25 @@ void mp_hal_uart_open_repl(void)
 {
     if (s_uart_fd < 0) {
         s_uart_fd = open("/dev/console", O_RDWR);
+        if (s_uart_fd >= 0) {
+            s_uart_flags=fcntl(s_uart_fd,F_GETFL,0);
+            if (s_uart_flags>=0) fcntl(s_uart_fd,F_SETFL,s_uart_flags|O_NONBLOCK);
+        }
         if (s_uart_fd < 0) {
             ESP_LOGE(TAG, "Failed to open /dev/console for REPL");
         }
     }
+}
+
+/* Called only while an interactive Python statement has an abort target. */
+int mp_hal_uart_interrupt_pending(void)
+{
+    if (s_uart_fd<0 || s_uart_flags<0) return 0;
+    uint8_t c;
+    if (read(s_uart_fd,&c,1)!=1) return 0;
+    if (c==3) return 1;
+    ringbuf_put(&stdin_ringbuf,c);
+    return 0;
 }
 
 /* ── Timing ─────────────────────────────────────────────────────────── */
@@ -154,6 +173,7 @@ void mp_hal_delay_ms(mp_uint_t ms)
     uint64_t dt;
     uint64_t t0 = esp_timer_get_time();
     for (;;) {
+        cap_mpy_poll_hook();
         mp_handle_pending(MP_HANDLE_PENDING_CALLBACKS_AND_EXCEPTIONS);
         MP_THREAD_GIL_EXIT();
         uint64_t t1 = esp_timer_get_time();
@@ -182,6 +202,7 @@ void mp_hal_delay_us(mp_uint_t us)
     us -= 5;
     uint64_t t0 = esp_timer_get_time();
     for (;;) {
+        cap_mpy_poll_hook();
         uint64_t dt = esp_timer_get_time() - t0;
         if (dt >= us) {
             return;

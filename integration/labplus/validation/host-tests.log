@@ -1,0 +1,67 @@
+REALTIME_VOICE_STOPPED ...us-esp-claw/integration/labplus/sdcard/labplus/voice.lua:256: test connection failure
+REALTIME_VOICE_STOPPED ...us-esp-claw/integration/labplus/sdcard/labplus/voice.lua:299: Realtime session setup timed out
+REALTIME_VOICE_STOPPED [string "<python>"]:24: microphone open failed
+PASS: handshake, capture, playback, echo guard, transcripts, cleanup, error, timeout, partial-open failure, host validation
+PASS: barge-in cancels active response, drains queued audio, ignores stale events, records next turn
+PASS: holding through initial connection starts capture; early release disarms it
+PASS: programming transcript routes directly to device agent, stays silent, retries invalid results at most twice
+LABPLUS_DISPLAY metadata=1 active=rgb565
+LABPLUS_TOUCH_READY
+LABPLUS_LOGO_RENDERED
+VOICE_TOUCH_DOWN 3000
+VOICE_TOUCH_UP 3190
+PASS: button hit region, hold drag, release outside, duplicate release, answer-area separation
+VOICE_TOUCH_DOWN 3450
+PASS: run button separated from voice button
+VOICE_TOUCH_UP 6580
+PASS: intermittent missing samples keep a single long hold; stable release submits once
+VOICE_TOUCH_DOWN 6580
+VOICE_TOUCH_DOWN 6710
+VOICE_TOUCH_UP 6840
+PASS: leaving during hold resets voice button before the next visit
+PASS: code selection without execution, immutable snapshot, explicit start, duplicate start, stop, no-code reply
+PASS: invalid syntax cannot run; a busy VM defers validation without executing code
+PASS: default selection survives module restart, cancellation, path and syntax validation
+PASS: product routes, global gestures, preview-before-run, swipe-to-stop, default selection/cancel, settings-only drawer, Wi-Fi scan, password keyboard, success/failure and cancel
+PASS: admission checks correct RAM capabilities, free bytes, largest internal block and PSRAM reserve
+PASS: antialiased font stress closes every SD file; peak one font descriptor and no retained handles
+PASS: complete 320-glyph page repaint uses cached pixels, zero SD reads
+PASS: one transient font descriptor per line, closed even on rendering failure
+PASS: Lua syntax for deployment scripts
+PASS: Python syntax
+PASS: burst over 32 messages, bounded count/bytes, fragment assembly
+PASS 1000 mixed file/directory ownership cycles, quota, VM cleanup, foreign descriptor protection
+PASS P4 FIFO TX preserves pending RX bytes; former RMW implementation fails this test
+PASS: nonblocking outbound enqueue, copied payload, count/byte bounds, failed connection rejection
+REALTIME_VOICE_STOPPED ...us-esp-claw/integration/labplus/sdcard/labplus/voice.lua:256: test connection failure
+REALTIME_VOICE_STOPPED ...us-esp-claw/integration/labplus/sdcard/labplus/voice.lua:299: Realtime session setup timed out
+REALTIME_VOICE_STOPPED [string "<python>"]:24: microphone open failed
+PASS: handshake, capture, playback, echo guard, transcripts, cleanup, error, timeout, partial-open failure, host validation
+PASS: barge-in cancels active response, drains queued audio, ignores stale events, records next turn
+PASS: holding through initial connection starts capture; early release disarms it
+PASS: programming transcript routes directly to device agent, stays silent, retries invalid results at most twice
+LABPLUS_DISPLAY metadata=1 active=rgb565
+LABPLUS_TOUCH_READY
+LABPLUS_LOGO_RENDERED
+VOICE_TOUCH_DOWN 3000
+VOICE_TOUCH_UP 3190
+PASS: button hit region, hold drag, release outside, duplicate release, answer-area separation
+VOICE_TOUCH_DOWN 3450
+PASS: run button separated from voice button
+VOICE_TOUCH_UP 6580
+PASS: intermittent missing samples keep a single long hold; stable release submits once
+VOICE_TOUCH_DOWN 6580
+VOICE_TOUCH_DOWN 6710
+VOICE_TOUCH_UP 6840
+PASS: leaving during hold resets voice button before the next visit
+PASS: code selection without execution, immutable snapshot, explicit start, duplicate start, stop, no-code reply
+PASS: invalid syntax cannot run; a busy VM defers validation without executing code
+PASS: default selection survives module restart, cancellation, path and syntax validation
+PASS: product routes, global gestures, preview-before-run, swipe-to-stop, default selection/cancel, settings-only drawer, Wi-Fi scan, password keyboard, success/failure and cancel
+PASS: admission checks correct RAM capabilities, free bytes, largest internal block and PSRAM reserve
+PASS: antialiased font stress closes every SD file; peak one font descriptor and no retained handles
+PASS: complete 320-glyph page repaint uses cached pixels, zero SD reads
+PASS: one transient font descriptor per line, closed even on rendering failure
+PASS: Lua syntax for deployment scripts
+PASS: Python syntax
+PASS: delayed duplicate prompt breaks old handshake; single-newline synchronization returns current reply

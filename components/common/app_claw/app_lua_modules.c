@@ -1,13 +1,22 @@
+#include "sdkconfig.h"
+#if CONFIG_APP_CLAW_CAP_MPY
+#include "runner.h"
+#include "network.h"
+#endif
 /*
  * SPDX-FileCopyrightText: 2026 Espressif Systems (Shanghai) CO LTD
  *
  * SPDX-License-Identifier: Apache-2.0
  */
 #include "app_lua_modules.h"
+#if CONFIG_APP_CLAW_LUA_MODULE_WEBSOCKET
+#include "lua_module_websocket.h"
+#endif
 
 #include <ctype.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 
 #include "esp_check.h"
@@ -478,6 +487,52 @@ static esp_err_t app_lua_register_event_publisher(const char *fatfs_base_path)
 }
 #endif
 
+#if CONFIG_APP_CLAW_CAP_MPY
+static esp_err_t app_lua_register_device_network(const char *path)
+{
+    (void)path;return lua_module_device_network_register();
+}
+static esp_err_t app_lua_register_micropython_runner(const char *path)
+{
+    (void)path;
+    return lua_module_micropython_runner_register();
+}
+#endif
+
+#if CONFIG_APP_CLAW_LUA_MODULE_WEBSOCKET
+static esp_err_t app_lua_websocket_auth(const char *url, char *headers, size_t size)
+{
+    /* The realtime UI must not call its own single-threaded HTTP server to
+     * read a key: a slow upload would then stop rendering/touch handling. */
+    const char *prefix = "wss://ws-";
+    if (strncmp(url, prefix, strlen(prefix)) != 0) return ESP_ERR_INVALID_ARG;
+    const char *host = url + strlen(prefix);
+    while ((*host >= 'a' && *host <= 'z') || (*host >= '0' && *host <= '9') || *host == '-') host++;
+    const char *suffix = ".cn-beijing.maas.aliyuncs.com/api-ws/v1/realtime?model=";
+    if (strncmp(host, suffix, strlen(suffix)) != 0) return ESP_ERR_INVALID_ARG;
+    app_claw_config_t *config = calloc(1, sizeof(*config));
+    if (!config) return ESP_ERR_NO_MEM;
+    esp_err_t err = app_claw_get_config(config);
+    if (err == ESP_OK) {
+        if (!config->llm_api_key[0]) err = ESP_ERR_INVALID_STATE;
+        else {
+            int count = snprintf(headers, size, "Authorization: Bearer %s\r\n", config->llm_api_key);
+            if (count < 0 || (size_t)count >= size) err = ESP_ERR_INVALID_SIZE;
+        }
+    }
+    volatile unsigned char *clear = (volatile unsigned char *)config;
+    for (size_t i = 0; i < sizeof(*config); i++) clear[i] = 0;
+    free(config);
+    return err;
+}
+static esp_err_t app_lua_register_websocket(const char *fatfs_base_path)
+{
+    (void)fatfs_base_path;
+    lua_module_websocket_set_auth_provider(app_lua_websocket_auth);
+    return lua_module_websocket_register();
+}
+#endif
+
 #if CONFIG_APP_CLAW_LUA_MODULE_HTTP_SERVER
 static esp_err_t app_lua_register_http_server(const char *fatfs_base_path)
 {
@@ -692,6 +747,13 @@ static const app_lua_module_entry_t s_lua_module_entries[] = {
 #if CONFIG_APP_CLAW_LUA_MODULE_HTTP_SERVER
     { "http_server", "HTTP Server", app_lua_register_http_server },
 #endif
+#if CONFIG_APP_CLAW_LUA_MODULE_WEBSOCKET
+    { "websocket", "WebSocket", app_lua_register_websocket },
+#endif
+#if CONFIG_APP_CLAW_CAP_MPY
+    { "micropython_runner", "MicroPython runner", app_lua_register_micropython_runner },
+    { "device_network", "Device network", app_lua_register_device_network },
+#endif
 #if CONFIG_APP_CLAW_LUA_MODULE_JSON
     { "json", "JSON", app_lua_register_json },
 #endif
@@ -810,6 +872,13 @@ static const app_lua_module_info_t s_lua_module_infos[] = {
 #endif
 #if CONFIG_APP_CLAW_LUA_MODULE_HTTP_SERVER
     { "http_server", "HTTP Server" },
+#endif
+#if CONFIG_APP_CLAW_LUA_MODULE_WEBSOCKET
+    { "websocket", "WebSocket" },
+#endif
+#if CONFIG_APP_CLAW_CAP_MPY
+    { "micropython_runner", "MicroPython runner" },
+    { "device_network", "Device network" },
 #endif
 #if CONFIG_APP_CLAW_LUA_MODULE_JSON
     { "json", "JSON" },

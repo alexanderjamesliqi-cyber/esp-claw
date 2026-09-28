@@ -137,6 +137,8 @@ esp_err_t cap_mpy_unregister_job_event_cb(cap_mpy_job_event_cb_t cb, void *user_
  * Can be called from within a running script's C extension.
  */
 bool cap_mpy_stop_requested(void);
+/* Non-raising check: C adapters must release locks before poll_hook aborts. */
+bool cap_mpy_cancel_pending(void);
 
 /**
  * @brief Enter MicroPython interactive REPL mode.
@@ -144,6 +146,12 @@ bool cap_mpy_stop_requested(void);
  * Reads directly from UART, bypassing esp_console.
  */
 void cap_mpy_repl(void);
+
+/* Single-VM execution used by managed jobs; cancellation is cooperative. */
+esp_err_t cap_mpy_run_controlled(const char *path, uint32_t timeout_ms,
+    volatile bool *stop, char *output, size_t output_size);
+void cap_mpy_poll_hook(void);
+esp_err_t cap_mpy_validate_script(const char *path, char *output, size_t output_size);
 
 #ifdef __cplusplus
 }

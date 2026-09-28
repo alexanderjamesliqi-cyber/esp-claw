@@ -1,0 +1,1 @@
+PASS P4 FIFO TX preserves pending RX bytes; former RMW implementation fails this test

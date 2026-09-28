@@ -1,0 +1,16 @@
+{
+  "duration_s": 838.4310302734375,
+  "internal": 98999,
+  "pages": 2016,
+  "voice_cycles": 12,
+  "program_cycles": 252,
+  "ended_by": "user request",
+  "completed_full_20_minutes": false,
+  "errors": [
+    "HTTP unavailable >15s"
+  ],
+  "monitored_samples": 394,
+  "firmware_sha256": "bca226ef6bd4ac12cd410a17728f4a39bd316a6a9d77d928301b39a49c6e1f86",
+  "upload_count": null,
+  "upload_errors": null
+}

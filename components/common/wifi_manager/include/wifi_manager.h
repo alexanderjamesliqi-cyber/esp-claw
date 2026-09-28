@@ -34,6 +34,7 @@ typedef struct {
     bool ap_active;
     bool sta_configured;
     const char *sta_ip;
+    const char *sta_ssid;
     const char *ap_ip;
     const char *ap_ssid;
     const char *mode;

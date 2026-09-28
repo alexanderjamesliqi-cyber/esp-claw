@@ -23,7 +23,8 @@
 #define CAP_LUA_ASYNC_LOG_TAIL_DEFAULT_BYTES 2048
 #define CAP_LUA_ASYNC_MAX_JOBS          16
 #define CAP_LUA_ASYNC_MAX_CONCURRENT    4
-#define CAP_LUA_MAX_MODULES             32
+/* Board builds can register more than 32 modules, including driver aliases. */
+#define CAP_LUA_MAX_MODULES             64
 
 #define CAP_LUA_STOP_WAIT_DEFAULT_MS    2000
 

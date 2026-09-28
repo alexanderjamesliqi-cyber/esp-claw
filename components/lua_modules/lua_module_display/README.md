@@ -431,3 +431,8 @@ display.present()
 display.end_frame()
 display.deinit()
 ```
+
+`display.save_frame(path)` writes the visible native pixel buffer to a binary file without
+an extra full-frame allocation. Call from the display-owning UI task while idle.
+The raw display session belongs to the VM that initialized it: other VMs cannot initialize
+or deinitialize that session, and exiting an unrelated Lua task does not release it.

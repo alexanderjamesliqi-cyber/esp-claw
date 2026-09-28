@@ -1,0 +1,1 @@
+仅限专用测试板。需要 pyserial，修改 rig.py/product_check.py 的 IP 与 device.py 串口路径。先上传 qa_api.lua，再运行相应专项。run_soak.py 默认 20 分钟；run_startup.py 会重启并临时变更开机选择后恢复。所有 qa_ 测试文件应在结束后清理。测试记录中的固件哈希对应关系见 ../test-provenance.json。

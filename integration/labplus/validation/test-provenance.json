@@ -1,0 +1,54 @@
+{
+  "scan-results.json": {
+    "firmware_sha256": "bca226ef6bd4ac12cd410a17728f4a39bd316a6a9d77d928301b39a49c6e1f86",
+    "basis": "final scan-cache build: 10 real scans plus automatic-cache and explicit-refresh cooldown assertions"
+  },
+  "usb-burst-results.json": {
+    "firmware_sha256": "f6a3a6e492e75c91ae74b4a6775c9f85ffc106cb44941cdd2ae0f7c887da4e65",
+    "basis": "FIFO-corrected build; later changes confined to HTTP upload and WebSocket/voice paths; interpreter unchanged"
+  },
+  "fault-results.json": {
+    "firmware_sha256": "f6a3a6e492e75c91ae74b4a6775c9f85ffc106cb44941cdd2ae0f7c887da4e65",
+    "basis": "FIFO-corrected build; later changes confined to HTTP upload and WebSocket/voice paths; interpreter unchanged"
+  },
+  "repl-results.json": {
+    "firmware_sha256": "f6a3a6e492e75c91ae74b4a6775c9f85ffc106cb44941cdd2ae0f7c887da4e65",
+    "basis": "FIFO-corrected build; later changes confined to HTTP upload and WebSocket/voice paths; interpreter unchanged"
+  },
+  "countdown-validation.json": {
+    "firmware_sha256": "f6a3a6e492e75c91ae74b4a6775c9f85ffc106cb44941cdd2ae0f7c887da4e65",
+    "basis": "FIFO-corrected build; later changes confined to HTTP upload and WebSocket/voice paths; interpreter unchanged"
+  },
+  "display-results.json": {
+    "firmware_sha256": "f6a3a6e492e75c91ae74b4a6775c9f85ffc106cb44941cdd2ae0f7c887da4e65",
+    "basis": "FIFO-corrected build; later changes confined to HTTP upload and WebSocket/voice paths; interpreter unchanged"
+  },
+  "playback-results.json": {
+    "firmware_sha256": "997cc5ad69cfad27afad099c1bd69bf522ef5a97507f103618343c1389e2cab5",
+    "basis": "asynchronous voice build; final build moves queue submission outside assert without changing enabled-assert behavior"
+  },
+  "soak-results.json": {
+    "firmware_sha256": "bca226ef6bd4ac12cd410a17728f4a39bd316a6a9d77d928301b39a49c6e1f86",
+    "basis": "scan-cache build, stopped at user request; followed by HTTP dispatcher and host USB synchronization fixes"
+  },
+  "startup-validation.json": {
+    "firmware_sha256": "22550d372ea3d6ef38a5c25c5a80e580cd93646c7b88ad1a34b6fd20767abb76",
+    "basis": "earlier interpreter-hardened build; startup logic unchanged; user ended long testing, no final-build reboot matrix repeated"
+  },
+  "upload-recovery-results.json": {
+    "firmware_sha256": "a45113a2db9b037e66a6e2e9cf4bc2f1abe28f18717e6ac68ecae50029069d6c",
+    "basis": "final HTTP dispatcher build; corrected host USB synchronization"
+  },
+  "voice-concurrency-results.json": {
+    "firmware_sha256": "997cc5ad69cfad27afad099c1bd69bf522ef5a97507f103618343c1389e2cab5",
+    "basis": "asynchronous voice build; final build moves queue submission outside assert without changing enabled-assert behavior"
+  },
+  "websocket-gc-results.json": {
+    "firmware_sha256": "997cc5ad69cfad27afad099c1bd69bf522ef5a97507f103618343c1389e2cab5",
+    "basis": "asynchronous voice build; final build moves queue submission outside assert without changing enabled-assert behavior"
+  },
+  "usb-voice-concurrency-results.json": {
+    "firmware_sha256": "a45113a2db9b037e66a6e2e9cf4bc2f1abe28f18717e6ac68ecae50029069d6c",
+    "basis": "final HTTP dispatcher build; corrected host USB synchronization"
+  }
+}

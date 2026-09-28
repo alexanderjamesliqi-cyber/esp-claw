@@ -26,6 +26,13 @@ static const char *TAG = "lua_display";
 
 static display_service_session_handle_t s_display_session;
 static bool s_display_active;
+/* Only the VM that acquired the raw session may release it. */
+static lua_State *s_display_owner;
+static lua_State *lua_display_main_thread(lua_State *L)
+{
+    lua_rawgeti(L,LUA_REGISTRYINDEX,LUA_RIDX_MAINTHREAD);
+    lua_State *main=lua_tothread(L,-1);lua_pop(L,1);return main;
+}
 
 static int lua_display_check_integer_arg(lua_State *L, int index, const char *name)
 {
@@ -185,9 +192,7 @@ static void lua_display_exit_cleanup(lua_State *L)
 {
     esp_err_t err;
 
-    (void)L;
-
-    if (!s_display_active) {
+    if (!s_display_active || s_display_owner!=L) {
         return;
     }
     ESP_LOGI(TAG, "Lua exit cleanup: display raw session still active, releasing");
@@ -201,6 +206,7 @@ static void lua_display_exit_cleanup(lua_State *L)
         s_display_session = NULL;
     }
     s_display_active = false;
+    s_display_owner = NULL;
 }
 
 static int lua_display_init(lua_State *L)
@@ -216,6 +222,7 @@ static int lua_display_init(lua_State *L)
     display_hal_pixel_format_t pixel_format = lua_display_parse_pixel_format(L, 6);
 
     if (s_display_active) {
+        if (s_display_owner!=lua_display_main_thread(L)) return luaL_error(L,"display is owned by another task");
         lua_pushboolean(L, 1);
         return 1;
     }
@@ -235,6 +242,7 @@ static int lua_display_init(lua_State *L)
         s_display_session = NULL;
         return luaL_error(L, "display init failed: %s", esp_err_to_name(err));
     }
+    s_display_owner = lua_display_main_thread(L);
     s_display_active = true;
 
     lua_pushboolean(L, 1);
@@ -243,7 +251,8 @@ static int lua_display_init(lua_State *L)
 
 static int lua_display_deinit(lua_State *L)
 {
-    (void)L;
+    if (s_display_active && s_display_owner!=lua_display_main_thread(L))
+        return luaL_error(L,"display is owned by another task");
 
     if (!s_display_active) {
         lua_pushboolean(L, 1);
@@ -263,6 +272,7 @@ static int lua_display_deinit(lua_State *L)
         s_display_session = NULL;
     }
     s_display_active = false;
+    s_display_owner = NULL;
 
     lua_pushboolean(L, 1);
     return 1;
@@ -1162,9 +1172,17 @@ static int lua_display_fill_triangle(lua_State *L)
     return 0;
 }
 
+static int lua_display_save_frame(lua_State *L)
+{
+    const char *path=luaL_checkstring(L,1);
+    esp_err_t err=display_hal_save_frame(path);
+    lua_pushboolean(L,err==ESP_OK);return 1;
+}
+
 int luaopen_display(lua_State *L)
 {
     lua_newtable(L);
+    lua_pushcfunction(L,lua_display_save_frame);lua_setfield(L,-2,"save_frame");
 
     lua_pushcfunction(L, lua_display_init);
     lua_setfield(L, -2, "init");

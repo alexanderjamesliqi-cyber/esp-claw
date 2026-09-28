@@ -6,6 +6,7 @@
 #include "display_hal.h"
 
 #include <limits.h>
+#include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
@@ -458,6 +459,20 @@ static uint8_t *display_hal_get_visible_framebuffer_locked(void)
         return NULL;
     }
     return s_state.framebuffers[s_state.visible_framebuffer_index];
+}
+
+esp_err_t display_hal_save_frame(const char *path)
+{
+    ESP_RETURN_ON_FALSE(path,ESP_ERR_INVALID_ARG,TAG,"path required");
+    esp_err_t err=display_hal_lock();if (err!=ESP_OK) return err;
+    const uint8_t *frame=display_hal_get_visible_framebuffer_locked();
+    if (!frame) {display_hal_unlock();return ESP_ERR_INVALID_STATE;}
+    FILE *file=fopen(path,"wb");
+    if (!file) {display_hal_unlock();return ESP_FAIL;}
+    size_t size=s_state.framebuffer_bytes;
+    size_t written=fwrite(frame,1,size,file);
+    int closed=fclose(file);display_hal_unlock();
+    return written==size && closed==0 ? ESP_OK : ESP_FAIL;
 }
 
 static esp_err_t display_hal_alloc_framebuffer_locked(size_t index)

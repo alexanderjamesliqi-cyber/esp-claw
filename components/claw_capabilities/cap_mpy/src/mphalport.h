@@ -105,6 +105,7 @@ int mp_hal_stdin_rx_chr(void);
 mp_uint_t mp_hal_stdout_tx_strn(const char *str, size_t len);
 void mp_hal_uart_open_repl(void);
 void mp_hal_uart_close(void);
+int mp_hal_uart_interrupt_pending(void);
 
 /* Time */
 uint64_t mp_hal_time_ns(void);

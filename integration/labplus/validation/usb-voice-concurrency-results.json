@@ -1,0 +1,9 @@
+{
+  "commands": 100,
+  "serial_reopens": 19,
+  "cloud_output_bytes": 1835520,
+  "uploads": 48,
+  "upload_errors": [],
+  "monitor_errors": [],
+  "max_ui_ms": 500
+}

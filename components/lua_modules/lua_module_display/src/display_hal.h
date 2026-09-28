@@ -171,3 +171,6 @@ esp_err_t display_hal_draw_bitmap_scaled_native(int x, int y,
 #ifdef __cplusplus
 }
 #endif
+
+/* Save the visible native-format framebuffer without an extra full-frame copy. */
+esp_err_t display_hal_save_frame(const char *path);

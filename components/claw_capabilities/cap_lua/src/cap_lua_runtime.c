@@ -13,9 +13,25 @@
 
 #include "cJSON.h"
 #include "esp_log.h"
+#include "esp_heap_caps.h"
 #include "esp_timer.h"
 #include "lauxlib.h"
 #include "lualib.h"
+
+/* Lua objects prefer PSRAM; protect internal RAM used by radio/TLS/task stacks.
+ * The allocator context outlives the VM and tracks realloc's actual old size. */
+#define CAP_LUA_VM_MEMORY_LIMIT (8U * 1024U * 1024U)
+typedef struct { size_t used; uint32_t caps; } cap_lua_allocator_t;
+static void *cap_lua_bounded_alloc(void *user,void *ptr,size_t old_size,size_t new_size)
+{
+    cap_lua_allocator_t *a=user;
+    if (!ptr) old_size=0; /* Lua uses osize as a type tag for new objects. */
+    if (!new_size) { heap_caps_free(ptr);a->used-=old_size;return NULL; }
+    if (new_size>CAP_LUA_VM_MEMORY_LIMIT || a->used-old_size>CAP_LUA_VM_MEMORY_LIMIT-new_size) return NULL;
+    void *next=heap_caps_realloc(ptr,new_size,a->caps);
+    if (next) a->used=a->used-old_size+new_size;
+    return next;
+}
 
 static const char *TAG = "cap_lua_rt";
 
@@ -423,7 +439,9 @@ esp_err_t cap_lua_runtime_execute_file(const char *path,
         return ESP_ERR_INVALID_SIZE;
     }
 
-    L = luaL_newstate();
+    cap_lua_allocator_t allocator={.caps=heap_caps_get_total_size(MALLOC_CAP_SPIRAM)>0
+        ? MALLOC_CAP_SPIRAM|MALLOC_CAP_8BIT : MALLOC_CAP_DEFAULT};
+    L = lua_newstate(cap_lua_bounded_alloc,&allocator,luaL_makeseed(NULL));
     if (!L) {
         snprintf(output, output_size, "Error: failed to create Lua state");
         return ESP_ERR_NO_MEM;

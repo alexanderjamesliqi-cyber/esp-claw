@@ -1,0 +1,1650 @@
+{
+  "samples": [
+    {
+      "lua_kb": 472.7666015625,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 122015,
+        "free_blocks": 38,
+        "total_blocks": 337,
+        "total_size": 390035,
+        "free_size": 124779,
+        "allocated_blocks": 299,
+        "allocated_size": 259700,
+        "largest_free_block": 47104
+      },
+      "at_ms": 174408,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 23948164,
+        "free_blocks": 151,
+        "total_blocks": 9717,
+        "total_size": 28806288,
+        "free_size": 24061040,
+        "allocated_blocks": 9566,
+        "allocated_size": 4702948,
+        "largest_free_block": 23592960
+      },
+      "host_monotonic": 1.236391541
+    },
+    {
+      "lua_kb": 472.7666015625,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 122015,
+        "free_blocks": 38,
+        "total_blocks": 337,
+        "total_size": 390035,
+        "free_size": 124779,
+        "allocated_blocks": 299,
+        "allocated_size": 259700,
+        "largest_free_block": 47104
+      },
+      "at_ms": 174408,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 23948164,
+        "free_blocks": 151,
+        "total_blocks": 9717,
+        "total_size": 28806288,
+        "free_size": 24061040,
+        "allocated_blocks": 9566,
+        "allocated_size": 4702948,
+        "largest_free_block": 23592960
+      },
+      "host_monotonic": 2.820846083
+    },
+    {
+      "lua_kb": 367.361328125,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 105623,
+        "free_blocks": 35,
+        "total_blocks": 356,
+        "total_size": 390035,
+        "free_size": 108919,
+        "allocated_blocks": 321,
+        "allocated_size": 275472,
+        "largest_free_block": 37888
+      },
+      "at_ms": 179413,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 23623984,
+        "free_blocks": 484,
+        "total_blocks": 8840,
+        "total_size": 28806288,
+        "free_size": 24061424,
+        "allocated_blocks": 8356,
+        "allocated_size": 4707404,
+        "largest_free_block": 23592960
+      },
+      "host_monotonic": 4.721796
+    },
+    {
+      "lua_kb": 367.361328125,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 105623,
+        "free_blocks": 35,
+        "total_blocks": 356,
+        "total_size": 390035,
+        "free_size": 108919,
+        "allocated_blocks": 321,
+        "allocated_size": 275472,
+        "largest_free_block": 37888
+      },
+      "at_ms": 179413,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 23623984,
+        "free_blocks": 484,
+        "total_blocks": 8840,
+        "total_size": 28806288,
+        "free_size": 24061424,
+        "allocated_blocks": 8356,
+        "allocated_size": 4707404,
+        "largest_free_block": 23592960
+      },
+      "host_monotonic": 6.003266875
+    },
+    {
+      "lua_kb": 367.361328125,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 105623,
+        "free_blocks": 35,
+        "total_blocks": 356,
+        "total_size": 390035,
+        "free_size": 108919,
+        "allocated_blocks": 321,
+        "allocated_size": 275472,
+        "largest_free_block": 37888
+      },
+      "at_ms": 179413,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 23623984,
+        "free_blocks": 484,
+        "total_blocks": 8840,
+        "total_size": 28806288,
+        "free_size": 24061424,
+        "allocated_blocks": 8356,
+        "allocated_size": 4707404,
+        "largest_free_block": 23592960
+      },
+      "host_monotonic": 7.178799875,
+      "usb_connected": true,
+      "wifi_connected": true
+    },
+    {
+      "lua_kb": 367.361328125,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 105623,
+        "free_blocks": 35,
+        "total_blocks": 356,
+        "total_size": 390035,
+        "free_size": 108919,
+        "allocated_blocks": 321,
+        "allocated_size": 275472,
+        "largest_free_block": 37888
+      },
+      "at_ms": 179413,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 23623984,
+        "free_blocks": 484,
+        "total_blocks": 8840,
+        "total_size": 28806288,
+        "free_size": 24061424,
+        "allocated_blocks": 8356,
+        "allocated_size": 4707404,
+        "largest_free_block": 23592960
+      },
+      "host_monotonic": 8.349076458
+    },
+    {
+      "lua_kb": 434.30078125,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 101083,
+        "free_blocks": 37,
+        "total_blocks": 364,
+        "total_size": 390035,
+        "free_size": 103507,
+        "allocated_blocks": 327,
+        "allocated_size": 280860,
+        "largest_free_block": 31744
+      },
+      "at_ms": 184434,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 23623984,
+        "free_blocks": 165,
+        "total_blocks": 8249,
+        "total_size": 28806288,
+        "free_size": 23878544,
+        "allocated_blocks": 8084,
+        "allocated_size": 4891372,
+        "largest_free_block": 23592960
+      },
+      "host_monotonic": 9.975295333
+    },
+    {
+      "lua_kb": 434.30078125,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 101083,
+        "free_blocks": 37,
+        "total_blocks": 364,
+        "total_size": 390035,
+        "free_size": 103507,
+        "allocated_blocks": 327,
+        "allocated_size": 280860,
+        "largest_free_block": 31744
+      },
+      "at_ms": 184434,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 23623984,
+        "free_blocks": 165,
+        "total_blocks": 8249,
+        "total_size": 28806288,
+        "free_size": 23878544,
+        "allocated_blocks": 8084,
+        "allocated_size": 4891372,
+        "largest_free_block": 23592960
+      },
+      "host_monotonic": 11.059256833
+    },
+    {
+      "lua_kb": 434.30078125,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 101083,
+        "free_blocks": 37,
+        "total_blocks": 364,
+        "total_size": 390035,
+        "free_size": 103507,
+        "allocated_blocks": 327,
+        "allocated_size": 280860,
+        "largest_free_block": 31744
+      },
+      "at_ms": 184434,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 23623984,
+        "free_blocks": 165,
+        "total_blocks": 8249,
+        "total_size": 28806288,
+        "free_size": 23878544,
+        "allocated_blocks": 8084,
+        "allocated_size": 4891372,
+        "largest_free_block": 23592960
+      },
+      "host_monotonic": 12.103103458
+    },
+    {
+      "lua_kb": 434.30078125,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 101083,
+        "free_blocks": 37,
+        "total_blocks": 364,
+        "total_size": 390035,
+        "free_size": 103507,
+        "allocated_blocks": 327,
+        "allocated_size": 280860,
+        "largest_free_block": 31744
+      },
+      "at_ms": 184434,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 23623984,
+        "free_blocks": 165,
+        "total_blocks": 8249,
+        "total_size": 28806288,
+        "free_size": 23878544,
+        "allocated_blocks": 8084,
+        "allocated_size": 4891372,
+        "largest_free_block": 23592960
+      },
+      "host_monotonic": 13.128425291,
+      "usb_connected": true,
+      "wifi_connected": true
+    },
+    {
+      "lua_kb": 434.30078125,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 101083,
+        "free_blocks": 37,
+        "total_blocks": 364,
+        "total_size": 390035,
+        "free_size": 103507,
+        "allocated_blocks": 327,
+        "allocated_size": 280860,
+        "largest_free_block": 31744
+      },
+      "at_ms": 184434,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 23623984,
+        "free_blocks": 165,
+        "total_blocks": 8249,
+        "total_size": 28806288,
+        "free_size": 23878544,
+        "allocated_blocks": 8084,
+        "allocated_size": 4891372,
+        "largest_free_block": 23592960
+      },
+      "host_monotonic": 14.341851375
+    },
+    {
+      "lua_kb": 515.6787109375,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 96307,
+        "free_blocks": 40,
+        "total_blocks": 367,
+        "total_size": 390035,
+        "free_size": 99087,
+        "allocated_blocks": 327,
+        "allocated_size": 285280,
+        "largest_free_block": 31744
+      },
+      "at_ms": 189444,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 23623984,
+        "free_blocks": 568,
+        "total_blocks": 7342,
+        "total_size": 28806288,
+        "free_size": 23864960,
+        "allocated_blocks": 6774,
+        "allocated_size": 4910196,
+        "largest_free_block": 23068672
+      },
+      "host_monotonic": 15.519866625
+    },
+    {
+      "lua_kb": 515.6787109375,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 96307,
+        "free_blocks": 40,
+        "total_blocks": 367,
+        "total_size": 390035,
+        "free_size": 99087,
+        "allocated_blocks": 327,
+        "allocated_size": 285280,
+        "largest_free_block": 31744
+      },
+      "at_ms": 189444,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 23623984,
+        "free_blocks": 568,
+        "total_blocks": 7342,
+        "total_size": 28806288,
+        "free_size": 23864960,
+        "allocated_blocks": 6774,
+        "allocated_size": 4910196,
+        "largest_free_block": 23068672
+      },
+      "host_monotonic": 16.5898825
+    },
+    {
+      "lua_kb": 515.6787109375,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 96307,
+        "free_blocks": 40,
+        "total_blocks": 367,
+        "total_size": 390035,
+        "free_size": 99087,
+        "allocated_blocks": 327,
+        "allocated_size": 285280,
+        "largest_free_block": 31744
+      },
+      "at_ms": 189444,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 23623984,
+        "free_blocks": 568,
+        "total_blocks": 7342,
+        "total_size": 28806288,
+        "free_size": 23864960,
+        "allocated_blocks": 6774,
+        "allocated_size": 4910196,
+        "largest_free_block": 23068672
+      },
+      "host_monotonic": 17.656313291
+    },
+    {
+      "lua_kb": 515.6787109375,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 96307,
+        "free_blocks": 40,
+        "total_blocks": 367,
+        "total_size": 390035,
+        "free_size": 99087,
+        "allocated_blocks": 327,
+        "allocated_size": 285280,
+        "largest_free_block": 31744
+      },
+      "at_ms": 189444,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 23623984,
+        "free_blocks": 568,
+        "total_blocks": 7342,
+        "total_size": 28806288,
+        "free_size": 23864960,
+        "allocated_blocks": 6774,
+        "allocated_size": 4910196,
+        "largest_free_block": 23068672
+      },
+      "host_monotonic": 18.75198225,
+      "usb_connected": true,
+      "wifi_connected": true
+    },
+    {
+      "lua_kb": 592.6796875,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 96307,
+        "free_blocks": 40,
+        "total_blocks": 367,
+        "total_size": 390035,
+        "free_size": 99087,
+        "allocated_blocks": 327,
+        "allocated_size": 285280,
+        "largest_free_block": 31744
+      },
+      "at_ms": 194449,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 23465396,
+        "free_blocks": 629,
+        "total_blocks": 7350,
+        "total_size": 28806288,
+        "free_size": 23774072,
+        "allocated_blocks": 6721,
+        "allocated_size": 5001296,
+        "largest_free_block": 23068672
+      },
+      "host_monotonic": 19.934197291
+    },
+    {
+      "lua_kb": 592.6796875,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 96307,
+        "free_blocks": 40,
+        "total_blocks": 367,
+        "total_size": 390035,
+        "free_size": 99087,
+        "allocated_blocks": 327,
+        "allocated_size": 285280,
+        "largest_free_block": 31744
+      },
+      "at_ms": 194449,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 23465396,
+        "free_blocks": 629,
+        "total_blocks": 7350,
+        "total_size": 28806288,
+        "free_size": 23774072,
+        "allocated_blocks": 6721,
+        "allocated_size": 5001296,
+        "largest_free_block": 23068672
+      },
+      "host_monotonic": 21.018253958
+    },
+    {
+      "lua_kb": 592.6796875,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 96307,
+        "free_blocks": 40,
+        "total_blocks": 367,
+        "total_size": 390035,
+        "free_size": 99087,
+        "allocated_blocks": 327,
+        "allocated_size": 285280,
+        "largest_free_block": 31744
+      },
+      "at_ms": 194449,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 23465396,
+        "free_blocks": 629,
+        "total_blocks": 7350,
+        "total_size": 28806288,
+        "free_size": 23774072,
+        "allocated_blocks": 6721,
+        "allocated_size": 5001296,
+        "largest_free_block": 23068672
+      },
+      "host_monotonic": 22.224779208
+    },
+    {
+      "lua_kb": 592.6796875,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 96307,
+        "free_blocks": 40,
+        "total_blocks": 367,
+        "total_size": 390035,
+        "free_size": 99087,
+        "allocated_blocks": 327,
+        "allocated_size": 285280,
+        "largest_free_block": 31744
+      },
+      "at_ms": 194449,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 23465396,
+        "free_blocks": 629,
+        "total_blocks": 7350,
+        "total_size": 28806288,
+        "free_size": 23774072,
+        "allocated_blocks": 6721,
+        "allocated_size": 5001296,
+        "largest_free_block": 23068672
+      },
+      "host_monotonic": 23.328042916
+    },
+    {
+      "lua_kb": 592.6796875,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 96307,
+        "free_blocks": 40,
+        "total_blocks": 367,
+        "total_size": 390035,
+        "free_size": 99087,
+        "allocated_blocks": 327,
+        "allocated_size": 285280,
+        "largest_free_block": 31744
+      },
+      "at_ms": 194449,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 23465396,
+        "free_blocks": 629,
+        "total_blocks": 7350,
+        "total_size": 28806288,
+        "free_size": 23774072,
+        "allocated_blocks": 6721,
+        "allocated_size": 5001296,
+        "largest_free_block": 23068672
+      },
+      "host_monotonic": 24.386593791,
+      "usb_connected": true,
+      "wifi_connected": true
+    },
+    {
+      "lua_kb": 949.6513671875,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 94771,
+        "free_blocks": 39,
+        "total_blocks": 365,
+        "total_size": 390035,
+        "free_size": 97411,
+        "allocated_blocks": 326,
+        "allocated_size": 286960,
+        "largest_free_block": 31744
+      },
+      "at_ms": 199484,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 23298120,
+        "free_blocks": 184,
+        "total_blocks": 8197,
+        "total_size": 28806288,
+        "free_size": 23331096,
+        "allocated_blocks": 8013,
+        "allocated_size": 5439104,
+        "largest_free_block": 22544384
+      },
+      "host_monotonic": 25.538889416
+    },
+    {
+      "lua_kb": 949.6513671875,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 94771,
+        "free_blocks": 39,
+        "total_blocks": 365,
+        "total_size": 390035,
+        "free_size": 97411,
+        "allocated_blocks": 326,
+        "allocated_size": 286960,
+        "largest_free_block": 31744
+      },
+      "at_ms": 199484,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 23298120,
+        "free_blocks": 184,
+        "total_blocks": 8197,
+        "total_size": 28806288,
+        "free_size": 23331096,
+        "allocated_blocks": 8013,
+        "allocated_size": 5439104,
+        "largest_free_block": 22544384
+      },
+      "host_monotonic": 26.676261208
+    },
+    {
+      "lua_kb": 949.6513671875,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 94771,
+        "free_blocks": 39,
+        "total_blocks": 365,
+        "total_size": 390035,
+        "free_size": 97411,
+        "allocated_blocks": 326,
+        "allocated_size": 286960,
+        "largest_free_block": 31744
+      },
+      "at_ms": 199484,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 23298120,
+        "free_blocks": 184,
+        "total_blocks": 8197,
+        "total_size": 28806288,
+        "free_size": 23331096,
+        "allocated_blocks": 8013,
+        "allocated_size": 5439104,
+        "largest_free_block": 22544384
+      },
+      "host_monotonic": 27.775157
+    },
+    {
+      "lua_kb": 949.6513671875,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 94771,
+        "free_blocks": 39,
+        "total_blocks": 365,
+        "total_size": 390035,
+        "free_size": 97411,
+        "allocated_blocks": 326,
+        "allocated_size": 286960,
+        "largest_free_block": 31744
+      },
+      "at_ms": 199484,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 23298120,
+        "free_blocks": 184,
+        "total_blocks": 8197,
+        "total_size": 28806288,
+        "free_size": 23331096,
+        "allocated_blocks": 8013,
+        "allocated_size": 5439104,
+        "largest_free_block": 22544384
+      },
+      "host_monotonic": 29.02786025
+    },
+    {
+      "lua_kb": 984.142578125,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 93331,
+        "free_blocks": 39,
+        "total_blocks": 363,
+        "total_size": 390035,
+        "free_size": 96747,
+        "allocated_blocks": 324,
+        "allocated_size": 287632,
+        "largest_free_block": 31744
+      },
+      "at_ms": 204484,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 23068512,
+        "free_blocks": 633,
+        "total_blocks": 7370,
+        "total_size": 28806288,
+        "free_size": 23381828,
+        "allocated_blocks": 6737,
+        "allocated_size": 5393476,
+        "largest_free_block": 22544384
+      },
+      "host_monotonic": 30.170648041,
+      "usb_connected": true,
+      "wifi_connected": true
+    },
+    {
+      "lua_kb": 984.142578125,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 93331,
+        "free_blocks": 39,
+        "total_blocks": 363,
+        "total_size": 390035,
+        "free_size": 96747,
+        "allocated_blocks": 324,
+        "allocated_size": 287632,
+        "largest_free_block": 31744
+      },
+      "at_ms": 204484,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 23068512,
+        "free_blocks": 633,
+        "total_blocks": 7370,
+        "total_size": 28806288,
+        "free_size": 23381828,
+        "allocated_blocks": 6737,
+        "allocated_size": 5393476,
+        "largest_free_block": 22544384
+      },
+      "host_monotonic": 31.421551375
+    },
+    {
+      "lua_kb": 984.142578125,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 93331,
+        "free_blocks": 39,
+        "total_blocks": 363,
+        "total_size": 390035,
+        "free_size": 96747,
+        "allocated_blocks": 324,
+        "allocated_size": 287632,
+        "largest_free_block": 31744
+      },
+      "at_ms": 204484,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 23068512,
+        "free_blocks": 633,
+        "total_blocks": 7370,
+        "total_size": 28806288,
+        "free_size": 23381828,
+        "allocated_blocks": 6737,
+        "allocated_size": 5393476,
+        "largest_free_block": 22544384
+      },
+      "host_monotonic": 32.480927833
+    },
+    {
+      "lua_kb": 984.142578125,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 93331,
+        "free_blocks": 39,
+        "total_blocks": 363,
+        "total_size": 390035,
+        "free_size": 96747,
+        "allocated_blocks": 324,
+        "allocated_size": 287632,
+        "largest_free_block": 31744
+      },
+      "at_ms": 204484,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 23068512,
+        "free_blocks": 633,
+        "total_blocks": 7370,
+        "total_size": 28806288,
+        "free_size": 23381828,
+        "allocated_blocks": 6737,
+        "allocated_size": 5393476,
+        "largest_free_block": 22544384
+      },
+      "host_monotonic": 33.562235
+    },
+    {
+      "lua_kb": 1193.072265625,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 93235,
+        "free_blocks": 39,
+        "total_blocks": 364,
+        "total_size": 390035,
+        "free_size": 96391,
+        "allocated_blocks": 325,
+        "allocated_size": 287984,
+        "largest_free_block": 31744
+      },
+      "at_ms": 209550,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 22465768,
+        "free_blocks": 547,
+        "total_blocks": 9047,
+        "total_size": 28806288,
+        "free_size": 22986340,
+        "allocated_blocks": 8500,
+        "allocated_size": 5781912,
+        "largest_free_block": 22020096
+      },
+      "host_monotonic": 35.429968958
+    },
+    {
+      "lua_kb": 1193.072265625,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 93235,
+        "free_blocks": 39,
+        "total_blocks": 364,
+        "total_size": 390035,
+        "free_size": 96391,
+        "allocated_blocks": 325,
+        "allocated_size": 287984,
+        "largest_free_block": 31744
+      },
+      "at_ms": 209550,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 22465768,
+        "free_blocks": 547,
+        "total_blocks": 9047,
+        "total_size": 28806288,
+        "free_size": 22986340,
+        "allocated_blocks": 8500,
+        "allocated_size": 5781912,
+        "largest_free_block": 22020096
+      },
+      "host_monotonic": 36.47408325,
+      "usb_connected": true,
+      "wifi_connected": true
+    },
+    {
+      "lua_kb": 1193.072265625,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 93235,
+        "free_blocks": 39,
+        "total_blocks": 364,
+        "total_size": 390035,
+        "free_size": 96391,
+        "allocated_blocks": 325,
+        "allocated_size": 287984,
+        "largest_free_block": 31744
+      },
+      "at_ms": 209550,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 22465768,
+        "free_blocks": 547,
+        "total_blocks": 9047,
+        "total_size": 28806288,
+        "free_size": 22986340,
+        "allocated_blocks": 8500,
+        "allocated_size": 5781912,
+        "largest_free_block": 22020096
+      },
+      "host_monotonic": 37.639787833
+    },
+    {
+      "lua_kb": 1193.072265625,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 93235,
+        "free_blocks": 39,
+        "total_blocks": 364,
+        "total_size": 390035,
+        "free_size": 96391,
+        "allocated_blocks": 325,
+        "allocated_size": 287984,
+        "largest_free_block": 31744
+      },
+      "at_ms": 209550,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 22465768,
+        "free_blocks": 547,
+        "total_blocks": 9047,
+        "total_size": 28806288,
+        "free_size": 22986340,
+        "allocated_blocks": 8500,
+        "allocated_size": 5781912,
+        "largest_free_block": 22020096
+      },
+      "host_monotonic": 38.748628416
+    },
+    {
+      "lua_kb": 1193.072265625,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 93235,
+        "free_blocks": 39,
+        "total_blocks": 364,
+        "total_size": 390035,
+        "free_size": 96391,
+        "allocated_blocks": 325,
+        "allocated_size": 287984,
+        "largest_free_block": 31744
+      },
+      "at_ms": 209550,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 22465768,
+        "free_blocks": 547,
+        "total_blocks": 9047,
+        "total_size": 28806288,
+        "free_size": 22986340,
+        "allocated_blocks": 8500,
+        "allocated_size": 5781912,
+        "largest_free_block": 22020096
+      },
+      "host_monotonic": 39.880002708
+    },
+    {
+      "lua_kb": 1006.6923828125,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 91783,
+        "free_blocks": 40,
+        "total_blocks": 368,
+        "total_size": 390035,
+        "free_size": 94087,
+        "allocated_blocks": 328,
+        "allocated_size": 290276,
+        "largest_free_block": 31744
+      },
+      "at_ms": 214584,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 22465768,
+        "free_blocks": 334,
+        "total_blocks": 8821,
+        "total_size": 28806288,
+        "free_size": 23147424,
+        "allocated_blocks": 8487,
+        "allocated_size": 5620880,
+        "largest_free_block": 22020096
+      },
+      "host_monotonic": 41.281207416
+    },
+    {
+      "lua_kb": 1006.6923828125,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 91783,
+        "free_blocks": 40,
+        "total_blocks": 368,
+        "total_size": 390035,
+        "free_size": 94087,
+        "allocated_blocks": 328,
+        "allocated_size": 290276,
+        "largest_free_block": 31744
+      },
+      "at_ms": 214584,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 22465768,
+        "free_blocks": 334,
+        "total_blocks": 8821,
+        "total_size": 28806288,
+        "free_size": 23147424,
+        "allocated_blocks": 8487,
+        "allocated_size": 5620880,
+        "largest_free_block": 22020096
+      },
+      "host_monotonic": 42.4389015,
+      "usb_connected": true,
+      "wifi_connected": true
+    },
+    {
+      "lua_kb": 1006.6923828125,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 91783,
+        "free_blocks": 40,
+        "total_blocks": 368,
+        "total_size": 390035,
+        "free_size": 94087,
+        "allocated_blocks": 328,
+        "allocated_size": 290276,
+        "largest_free_block": 31744
+      },
+      "at_ms": 214584,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 22465768,
+        "free_blocks": 334,
+        "total_blocks": 8821,
+        "total_size": 28806288,
+        "free_size": 23147424,
+        "allocated_blocks": 8487,
+        "allocated_size": 5620880,
+        "largest_free_block": 22020096
+      },
+      "host_monotonic": 43.51278475
+    },
+    {
+      "lua_kb": 1006.6923828125,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 91783,
+        "free_blocks": 40,
+        "total_blocks": 368,
+        "total_size": 390035,
+        "free_size": 94087,
+        "allocated_blocks": 328,
+        "allocated_size": 290276,
+        "largest_free_block": 31744
+      },
+      "at_ms": 214584,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 22465768,
+        "free_blocks": 334,
+        "total_blocks": 8821,
+        "total_size": 28806288,
+        "free_size": 23147424,
+        "allocated_blocks": 8487,
+        "allocated_size": 5620880,
+        "largest_free_block": 22020096
+      },
+      "host_monotonic": 44.613527125
+    },
+    {
+      "lua_kb": 946.1669921875,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 91567,
+        "free_blocks": 41,
+        "total_blocks": 368,
+        "total_size": 390035,
+        "free_size": 94443,
+        "allocated_blocks": 327,
+        "allocated_size": 289924,
+        "largest_free_block": 31744
+      },
+      "at_ms": 219609,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 22465768,
+        "free_blocks": 671,
+        "total_blocks": 8211,
+        "total_size": 28806288,
+        "free_size": 23297140,
+        "allocated_blocks": 7540,
+        "allocated_size": 5474952,
+        "largest_free_block": 22020096
+      },
+      "host_monotonic": 46.183780833
+    },
+    {
+      "lua_kb": 946.1669921875,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 91567,
+        "free_blocks": 41,
+        "total_blocks": 368,
+        "total_size": 390035,
+        "free_size": 94443,
+        "allocated_blocks": 327,
+        "allocated_size": 289924,
+        "largest_free_block": 31744
+      },
+      "at_ms": 219609,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 22465768,
+        "free_blocks": 671,
+        "total_blocks": 8211,
+        "total_size": 28806288,
+        "free_size": 23297140,
+        "allocated_blocks": 7540,
+        "allocated_size": 5474952,
+        "largest_free_block": 22020096
+      },
+      "host_monotonic": 47.600182958
+    },
+    {
+      "lua_kb": 946.1669921875,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 91567,
+        "free_blocks": 41,
+        "total_blocks": 368,
+        "total_size": 390035,
+        "free_size": 94443,
+        "allocated_blocks": 327,
+        "allocated_size": 289924,
+        "largest_free_block": 31744
+      },
+      "at_ms": 219609,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 22465768,
+        "free_blocks": 671,
+        "total_blocks": 8211,
+        "total_size": 28806288,
+        "free_size": 23297140,
+        "allocated_blocks": 7540,
+        "allocated_size": 5474952,
+        "largest_free_block": 22020096
+      },
+      "host_monotonic": 48.74762225,
+      "usb_connected": true,
+      "wifi_connected": true
+    },
+    {
+      "lua_kb": 946.1669921875,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 91567,
+        "free_blocks": 41,
+        "total_blocks": 368,
+        "total_size": 390035,
+        "free_size": 94443,
+        "allocated_blocks": 327,
+        "allocated_size": 289924,
+        "largest_free_block": 31744
+      },
+      "at_ms": 219609,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 22465768,
+        "free_blocks": 671,
+        "total_blocks": 8211,
+        "total_size": 28806288,
+        "free_size": 23297140,
+        "allocated_blocks": 7540,
+        "allocated_size": 5474952,
+        "largest_free_block": 22020096
+      },
+      "host_monotonic": 49.850303833
+    },
+    {
+      "lua_kb": 611.3076171875,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 91471,
+        "free_blocks": 40,
+        "total_blocks": 366,
+        "total_size": 390035,
+        "free_size": 94959,
+        "allocated_blocks": 326,
+        "allocated_size": 289412,
+        "largest_free_block": 31744
+      },
+      "at_ms": 224629,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 22465768,
+        "free_blocks": 771,
+        "total_blocks": 8099,
+        "total_size": 28806288,
+        "free_size": 23645472,
+        "allocated_blocks": 7328,
+        "allocated_size": 5127468,
+        "largest_free_block": 22020096
+      },
+      "host_monotonic": 50.889404333
+    },
+    {
+      "lua_kb": 611.3076171875,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 91471,
+        "free_blocks": 40,
+        "total_blocks": 366,
+        "total_size": 390035,
+        "free_size": 94959,
+        "allocated_blocks": 326,
+        "allocated_size": 289412,
+        "largest_free_block": 31744
+      },
+      "at_ms": 224629,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 22465768,
+        "free_blocks": 771,
+        "total_blocks": 8099,
+        "total_size": 28806288,
+        "free_size": 23645472,
+        "allocated_blocks": 7328,
+        "allocated_size": 5127468,
+        "largest_free_block": 22020096
+      },
+      "host_monotonic": 53.010181583
+    },
+    {
+      "lua_kb": 611.3076171875,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 91471,
+        "free_blocks": 40,
+        "total_blocks": 366,
+        "total_size": 390035,
+        "free_size": 94959,
+        "allocated_blocks": 326,
+        "allocated_size": 289412,
+        "largest_free_block": 31744
+      },
+      "at_ms": 224629,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 22465768,
+        "free_blocks": 771,
+        "total_blocks": 8099,
+        "total_size": 28806288,
+        "free_size": 23645472,
+        "allocated_blocks": 7328,
+        "allocated_size": 5127468,
+        "largest_free_block": 22020096
+      },
+      "host_monotonic": 54.086340416
+    },
+    {
+      "lua_kb": 579.7861328125,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 91447,
+        "free_blocks": 40,
+        "total_blocks": 367,
+        "total_size": 390035,
+        "free_size": 94863,
+        "allocated_blocks": 327,
+        "allocated_size": 289504,
+        "largest_free_block": 31744
+      },
+      "at_ms": 229650,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 22465768,
+        "free_blocks": 600,
+        "total_blocks": 8211,
+        "total_size": 28806288,
+        "free_size": 23673544,
+        "allocated_blocks": 7611,
+        "allocated_size": 5098264,
+        "largest_free_block": 22020096
+      },
+      "host_monotonic": 55.24050325,
+      "usb_connected": true,
+      "wifi_connected": true
+    },
+    {
+      "lua_kb": 579.7861328125,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 91447,
+        "free_blocks": 40,
+        "total_blocks": 367,
+        "total_size": 390035,
+        "free_size": 94863,
+        "allocated_blocks": 327,
+        "allocated_size": 289504,
+        "largest_free_block": 31744
+      },
+      "at_ms": 229650,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 22465768,
+        "free_blocks": 600,
+        "total_blocks": 8211,
+        "total_size": 28806288,
+        "free_size": 23673544,
+        "allocated_blocks": 7611,
+        "allocated_size": 5098264,
+        "largest_free_block": 22020096
+      },
+      "host_monotonic": 56.593557333
+    },
+    {
+      "lua_kb": 579.7861328125,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 91447,
+        "free_blocks": 40,
+        "total_blocks": 367,
+        "total_size": 390035,
+        "free_size": 94863,
+        "allocated_blocks": 327,
+        "allocated_size": 289504,
+        "largest_free_block": 31744
+      },
+      "at_ms": 229650,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 22465768,
+        "free_blocks": 600,
+        "total_blocks": 8211,
+        "total_size": 28806288,
+        "free_size": 23673544,
+        "allocated_blocks": 7611,
+        "allocated_size": 5098264,
+        "largest_free_block": 22020096
+      },
+      "host_monotonic": 57.972592375
+    },
+    {
+      "lua_kb": 579.7861328125,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 91447,
+        "free_blocks": 40,
+        "total_blocks": 367,
+        "total_size": 390035,
+        "free_size": 94863,
+        "allocated_blocks": 327,
+        "allocated_size": 289504,
+        "largest_free_block": 31744
+      },
+      "at_ms": 229650,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 22465768,
+        "free_blocks": 600,
+        "total_blocks": 8211,
+        "total_size": 28806288,
+        "free_size": 23673544,
+        "allocated_blocks": 7611,
+        "allocated_size": 5098264,
+        "largest_free_block": 22020096
+      },
+      "host_monotonic": 59.166825333
+    },
+    {
+      "lua_kb": 444.505859375,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 91351,
+        "free_blocks": 40,
+        "total_blocks": 365,
+        "total_size": 390035,
+        "free_size": 95079,
+        "allocated_blocks": 325,
+        "allocated_size": 289296,
+        "largest_free_block": 31744
+      },
+      "at_ms": 234677,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 22465768,
+        "free_blocks": 575,
+        "total_blocks": 8217,
+        "total_size": 28806288,
+        "free_size": 23818860,
+        "allocated_blocks": 7642,
+        "allocated_size": 4952824,
+        "largest_free_block": 22020096
+      },
+      "host_monotonic": 60.292884458
+    },
+    {
+      "lua_kb": 444.505859375,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 91351,
+        "free_blocks": 40,
+        "total_blocks": 365,
+        "total_size": 390035,
+        "free_size": 95079,
+        "allocated_blocks": 325,
+        "allocated_size": 289296,
+        "largest_free_block": 31744
+      },
+      "at_ms": 234677,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 22465768,
+        "free_blocks": 575,
+        "total_blocks": 8217,
+        "total_size": 28806288,
+        "free_size": 23818860,
+        "allocated_blocks": 7642,
+        "allocated_size": 4952824,
+        "largest_free_block": 22020096
+      },
+      "host_monotonic": 61.672281541,
+      "usb_connected": true,
+      "wifi_connected": true
+    },
+    {
+      "lua_kb": 444.505859375,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 91351,
+        "free_blocks": 40,
+        "total_blocks": 365,
+        "total_size": 390035,
+        "free_size": 95079,
+        "allocated_blocks": 325,
+        "allocated_size": 289296,
+        "largest_free_block": 31744
+      },
+      "at_ms": 234677,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 22465768,
+        "free_blocks": 575,
+        "total_blocks": 8217,
+        "total_size": 28806288,
+        "free_size": 23818860,
+        "allocated_blocks": 7642,
+        "allocated_size": 4952824,
+        "largest_free_block": 22020096
+      },
+      "host_monotonic": 62.854373375
+    },
+    {
+      "lua_kb": 444.505859375,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 91351,
+        "free_blocks": 40,
+        "total_blocks": 365,
+        "total_size": 390035,
+        "free_size": 95079,
+        "allocated_blocks": 325,
+        "allocated_size": 289296,
+        "largest_free_block": 31744
+      },
+      "at_ms": 234677,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 22465768,
+        "free_blocks": 575,
+        "total_blocks": 8217,
+        "total_size": 28806288,
+        "free_size": 23818860,
+        "allocated_blocks": 7642,
+        "allocated_size": 4952824,
+        "largest_free_block": 22020096
+      },
+      "host_monotonic": 63.943997458
+    },
+    {
+      "lua_kb": 436.216796875,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 91351,
+        "free_blocks": 40,
+        "total_blocks": 365,
+        "total_size": 390035,
+        "free_size": 95079,
+        "allocated_blocks": 325,
+        "allocated_size": 289296,
+        "largest_free_block": 31744
+      },
+      "at_ms": 239682,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 22465768,
+        "free_blocks": 626,
+        "total_blocks": 8252,
+        "total_size": 28806288,
+        "free_size": 23827824,
+        "allocated_blocks": 7626,
+        "allocated_size": 4943924,
+        "largest_free_block": 22020096
+      },
+      "host_monotonic": 65.027320916
+    },
+    {
+      "lua_kb": 436.216796875,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 91351,
+        "free_blocks": 40,
+        "total_blocks": 365,
+        "total_size": 390035,
+        "free_size": 95079,
+        "allocated_blocks": 325,
+        "allocated_size": 289296,
+        "largest_free_block": 31744
+      },
+      "at_ms": 239682,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 22465768,
+        "free_blocks": 626,
+        "total_blocks": 8252,
+        "total_size": 28806288,
+        "free_size": 23827824,
+        "allocated_blocks": 7626,
+        "allocated_size": 4943924,
+        "largest_free_block": 22020096
+      },
+      "host_monotonic": 66.085845666
+    },
+    {
+      "lua_kb": 436.216796875,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 91351,
+        "free_blocks": 40,
+        "total_blocks": 365,
+        "total_size": 390035,
+        "free_size": 95079,
+        "allocated_blocks": 325,
+        "allocated_size": 289296,
+        "largest_free_block": 31744
+      },
+      "at_ms": 239682,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 22465768,
+        "free_blocks": 626,
+        "total_blocks": 8252,
+        "total_size": 28806288,
+        "free_size": 23827824,
+        "allocated_blocks": 7626,
+        "allocated_size": 4943924,
+        "largest_free_block": 22020096
+      },
+      "host_monotonic": 67.498032416,
+      "usb_connected": true,
+      "wifi_connected": true
+    },
+    {
+      "lua_kb": 436.216796875,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 91351,
+        "free_blocks": 40,
+        "total_blocks": 365,
+        "total_size": 390035,
+        "free_size": 95079,
+        "allocated_blocks": 325,
+        "allocated_size": 289296,
+        "largest_free_block": 31744
+      },
+      "at_ms": 239682,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 22465768,
+        "free_blocks": 626,
+        "total_blocks": 8252,
+        "total_size": 28806288,
+        "free_size": 23827824,
+        "allocated_blocks": 7626,
+        "allocated_size": 4943924,
+        "largest_free_block": 22020096
+      },
+      "host_monotonic": 68.747818458
+    },
+    {
+      "lua_kb": 436.216796875,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 91351,
+        "free_blocks": 40,
+        "total_blocks": 365,
+        "total_size": 390035,
+        "free_size": 95079,
+        "allocated_blocks": 325,
+        "allocated_size": 289296,
+        "largest_free_block": 31744
+      },
+      "at_ms": 239682,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 22465768,
+        "free_blocks": 626,
+        "total_blocks": 8252,
+        "total_size": 28806288,
+        "free_size": 23827824,
+        "allocated_blocks": 7626,
+        "allocated_size": 4943924,
+        "largest_free_block": 22020096
+      },
+      "host_monotonic": 69.921405541
+    },
+    {
+      "lua_kb": 436.216796875,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 91351,
+        "free_blocks": 41,
+        "total_blocks": 371,
+        "total_size": 390035,
+        "free_size": 93871,
+        "allocated_blocks": 330,
+        "allocated_size": 290484,
+        "largest_free_block": 31744
+      },
+      "at_ms": 244707,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 22465768,
+        "free_blocks": 210,
+        "total_blocks": 9029,
+        "total_size": 28806288,
+        "free_size": 23732756,
+        "allocated_blocks": 8819,
+        "allocated_size": 5034220,
+        "largest_free_block": 22020096
+      },
+      "host_monotonic": 71.041278125
+    },
+    {
+      "lua_kb": 436.216796875,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 91351,
+        "free_blocks": 41,
+        "total_blocks": 371,
+        "total_size": 390035,
+        "free_size": 93871,
+        "allocated_blocks": 330,
+        "allocated_size": 290484,
+        "largest_free_block": 31744
+      },
+      "at_ms": 244707,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 22465768,
+        "free_blocks": 210,
+        "total_blocks": 9029,
+        "total_size": 28806288,
+        "free_size": 23732756,
+        "allocated_blocks": 8819,
+        "allocated_size": 5034220,
+        "largest_free_block": 22020096
+      },
+      "host_monotonic": 72.141159916
+    },
+    {
+      "lua_kb": 436.216796875,
+      "internal": {
+        "caps": 2048,
+        "minimum_free_size": 91351,
+        "free_blocks": 41,
+        "total_blocks": 371,
+        "total_size": 390035,
+        "free_size": 93871,
+        "allocated_blocks": 330,
+        "allocated_size": 290484,
+        "largest_free_block": 31744
+      },
+      "at_ms": 244707,
+      "psram": {
+        "caps": 1024,
+        "minimum_free_size": 22465768,
+        "free_blocks": 210,
+        "total_blocks": 9029,
+        "total_size": 28806288,
+        "free_size": 23732756,
+        "allocated_blocks": 8819,
+        "allocated_size": 5034220,
+        "largest_free_block": 22020096
+      },
+      "host_monotonic": 73.601764208,
+      "usb_connected": true,
+      "wifi_connected": true
+    }
+  ],
+  "errors": [],
+  "transport_events": []
+}

@@ -1,0 +1,17 @@
+[
+  {
+    "case": "voice_start_stop_during_stalled_upload",
+    "max_ui_ms": 617,
+    "passed": true
+  },
+  {
+    "case": "20_connect_cancel_cycles",
+    "max_ui_ms": 311,
+    "bounded_busy": 0,
+    "passed": true
+  },
+  {
+    "case": "voice_reconnect_after_cleanup",
+    "passed": true
+  }
+]

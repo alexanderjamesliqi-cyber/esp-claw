@@ -37,7 +37,7 @@
 static const char *TAG = "cap_mpy_async";
 
 #define CAP_MPY_MAX_JOBS          8
-#define CAP_MPY_MAX_CONCURRENT    2
+#define CAP_MPY_MAX_CONCURRENT    1
 #define CAP_MPY_OUTPUT_SIZE       (4 * 1024)
 #define CAP_MPY_STOP_WAIT_MS      2000
 #define CAP_MPY_TASK_STACK_SIZE   (16 * 1024)
@@ -71,6 +71,16 @@ typedef struct {
 
 static EXT_RAM_BSS_ATTR cap_mpy_job_record_t s_jobs[CAP_MPY_MAX_JOBS];
 static SemaphoreHandle_t s_job_lock;
+static portMUX_TYPE s_job_lock_init_mux=portMUX_INITIALIZER_UNLOCKED;
+static bool ensure_job_lock(void)
+{
+    SemaphoreHandle_t created=xSemaphoreCreateMutex();
+    portENTER_CRITICAL(&s_job_lock_init_mux);
+    if (!s_job_lock) {s_job_lock=created;created=NULL;}
+    portEXIT_CRITICAL(&s_job_lock_init_mux);
+    if (created) vSemaphoreDelete(created);
+    return s_job_lock!=NULL;
+}
 static SemaphoreHandle_t s_event_lock;
 static size_t s_running_jobs;
 static bool s_started;
@@ -121,6 +131,7 @@ static void cap_mpy_job_task(void *arg)
 {
     cap_mpy_job_record_t *job = (cap_mpy_job_record_t *)arg;
     char *output = NULL;
+    esp_err_t result=ESP_ERR_NO_MEM;
 
     output = calloc(1, CAP_MPY_OUTPUT_SIZE);
     if (!output) {
@@ -128,63 +139,19 @@ static void cap_mpy_job_task(void *arg)
         goto finish;
     }
 
-    /* Initialize per-job GC heap */
-    job->gc_heap_size = CAP_MPY_GC_HEAP_SIZE_DEFAULT;
-    job->gc_heap = heap_caps_malloc(job->gc_heap_size, MALLOC_CAP_DEFAULT);
-    if (!job->gc_heap) {
-        snprintf(output, CAP_MPY_OUTPUT_SIZE, "Error: failed to allocate GC heap");
-        goto finish;
+    if (xSemaphoreTake(s_job_lock,pdMS_TO_TICKS(1000))==pdTRUE) {
+        job->status=CAP_MPY_JOB_RUNNING;job->started_at=time(NULL);
+        xSemaphoreGive(s_job_lock);
     }
-
-    /* Initialize MicroPython for this job */
-    gc_init(job->gc_heap, (void *)((uint8_t *)job->gc_heap + job->gc_heap_size));
-    mp_stack_ctrl_init();
-    mp_init();
-    mp_stack_set_limit(CAP_MPY_TASK_STACK_SIZE - 2048);
-
-    /* Execute the script */
-    {
-        nlr_buf_t nlr;
-        if (nlr_push(&nlr) == 0) {
-            mp_lexer_t *lex = mp_lexer_new_from_file(qstr_from_str(job->path));
-            if (!lex) {
-                snprintf(output, CAP_MPY_OUTPUT_SIZE, "Error: cannot open: %s", job->path);
-                nlr_pop();
-                goto finish;
-            }
-
-            qstr source_name = lex->source_name;
-            mp_parse_tree_t pt = mp_parse(lex, MP_PARSE_FILE_INPUT);
-            mp_obj_t mod_fun = mp_compile(&pt, source_name, false);
-            mp_call_function_0(mod_fun);
-            nlr_pop();
-
-            if (output[0] == '\0') {
-                snprintf(output, CAP_MPY_OUTPUT_SIZE, "Python script completed.\n");
-            }
-        } else {
-            mp_obj_t exc = (mp_obj_t)nlr.ret_val;
-            vstr_t vstr;
-            mp_print_t pr;
-            vstr_init(&vstr, 256);
-            pr = (mp_print_t){ &vstr, (mp_print_strn_t)vstr_add_strn };
-            mp_obj_print_exception(&pr, exc);
-            size_t copy_len = vstr.len < CAP_MPY_OUTPUT_SIZE - 1 ? vstr.len : CAP_MPY_OUTPUT_SIZE - 1;
-            memcpy(output, vstr.buf, copy_len);
-            output[copy_len] = '\0';
-            vstr_clear(&vstr);
-        }
-    }
-
+    result=cap_mpy_run_controlled(job->path,job->timeout_ms,&job->stop_requested,output,CAP_MPY_OUTPUT_SIZE);
 finish:
-    /* Cleanup MicroPython for this job */
-    mp_deinit();
-
     /* Update job status */
     if (s_job_lock && xSemaphoreTake(s_job_lock, pdMS_TO_TICKS(1000)) == pdTRUE) {
         if (job->stop_requested) {
             job->status = CAP_MPY_JOB_STOPPED;
-        } else if (output && strstr(output, "Error:") == output) {
+        } else if (result==ESP_ERR_TIMEOUT) {
+            job->status = CAP_MPY_JOB_TIMEOUT;
+        } else if (result!=ESP_OK) {
             job->status = CAP_MPY_JOB_FAILED;
         } else {
             job->status = CAP_MPY_JOB_DONE;
@@ -217,10 +184,7 @@ esp_err_t cap_mpy_run_script_async(const char *path, const char *args_json,
     }
     output[0] = '\0';
 
-    if (!s_job_lock) {
-        s_job_lock = xSemaphoreCreateMutex();
-        if (!s_job_lock) return ESP_ERR_NO_MEM;
-    }
+    if (!ensure_job_lock()) return ESP_ERR_NO_MEM;
 
     /* Find a free slot */
     int slot = -1;
@@ -286,9 +250,7 @@ esp_err_t cap_mpy_run_script_async(const char *path, const char *args_json,
     }
 
     if (xSemaphoreTake(s_job_lock, pdMS_TO_TICKS(1000)) == pdTRUE) {
-        s_jobs[slot].task_handle = task;
-        s_jobs[slot].status = CAP_MPY_JOB_RUNNING;
-        s_jobs[slot].started_at = time(NULL);
+        if (!strcmp(s_jobs[slot].job_id,job_id_copy) && !cap_mpy_is_terminal(s_jobs[slot].status)) s_jobs[slot].task_handle = task;
         xSemaphoreGive(s_job_lock);
     }
 

@@ -362,6 +362,12 @@ menu "App Claw Config"
                 Enable the event publisher Lua module and keep app_claw's direct
                 dependency on lua_module_event_publisher when Lua capability is enabled.
 
+        config APP_CLAW_LUA_MODULE_WEBSOCKET
+            bool "Enable secure WebSocket Lua client"
+            default n
+            help
+                Adds a TLS WebSocket client for on-device realtime audio sessions.
+
         config APP_CLAW_LUA_MODULE_HTTP_SERVER
             bool "Enable HTTP server Lua module"
             default y

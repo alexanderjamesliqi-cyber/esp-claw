@@ -1,0 +1,47 @@
+[
+  {
+    "code": "x=(1<<1000000)-1; y=x*x",
+    "interrupt_s": 0.1035422920000002,
+    "ui_before": 225254,
+    "ui_after": 230283,
+    "output": "x=(1<<1000000)-1; y=x*x\nI (236392) cap_mpy: MicroPython runtime deinitialized\n\nExiting MicroPython REPL.\napp>  "
+  },
+  {
+    "code": "('a'*350000).find('a'*170000+'b')",
+    "interrupt_s": 0.10228350000000042,
+    "ui_before": 235318,
+    "ui_after": 240343,
+    "output": "('a'*350000).find('a'*170000+'b')\nI (243121) cap_mpy: MicroPython runtime deinitialized\n\nExiting MicroPython REPL.\napp>  "
+  },
+  {
+    "code": "raise ValueError((1<<500000)-1)",
+    "interrupt_s": 0.10506770799999998,
+    "ui_before": 240343,
+    "ui_after": 245381,
+    "output": "raise ValueError((1<<500000)-1)\nTraceback (most recent call last):\n  File \"<stdin>\", in <module>\nValueError: I (249888) cap_mpy: MicroPython runtime deinitialized\n\nExiting MicroPython REPL.\napp>  "
+  },
+  {
+    "code": "exec('while True: pass')",
+    "interrupt_s": 0.10514487500000058,
+    "ui_before": 245381,
+    "ui_after": 255399,
+    "output": "exec('while True: pass')\nI (256845) cap_mpy: MicroPython runtime deinitialized\n\nExiting MicroPython REPL.\napp>  "
+  },
+  {
+    "code": "import time;time.sleep_us(30000000)",
+    "interrupt_s": 0.10031475000000256,
+    "ui_before": 255399,
+    "ui_after": 260425,
+    "output": "import time;time.sleep_us(30000000)\nI (263601) cap_mpy: MicroPython runtime deinitialized\n\nExiting MicroPython REPL.\napp>  "
+  },
+  {
+    "code": "exec('try:\\n while True: pass\\nfinally:\\n while True: pass')",
+    "interrupt_s": 0.10223091699999998,
+    "ui_before": 260425,
+    "ui_after": 265448,
+    "output": "exec('try:\\n while True: pass\\nfinally:\\n while True: pass')\nI (270360) cap_mpy: MicroPython runtime deinitialized\n\nExiting MicroPython REPL.\napp>  "
+  },
+  {
+    "recursive_repl": "exec('def f(): return f()\\nf()')\nTraceback (most recent call last):\n  File \"<stdin>\", in <module>\n  File \"<string>\", in <module>\n  File \"<string>\", in f\n  File \"<string>\", in f\n  File \"<string>\", in f\n  File \"<string>\", in f\n  File \"<string>\", in f\n  File \"<string>\", in f\n  File \"<string>\", in f\n  File \"<string>\", in f\n  File \"<string>\", in f\nRuntimeError: maximum recursion depth exceeded\n>>> "
+  }
+]

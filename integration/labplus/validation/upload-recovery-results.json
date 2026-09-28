@@ -1,0 +1,26 @@
+[
+  {
+    "case": "abort_preserves_existing",
+    "passed": true
+  },
+  {
+    "status": 200,
+    "elapsed_s": 6.250015417,
+    "case": "resume_after_6s",
+    "ui_max_ms": 612,
+    "http_max_s": 0.41889366600000066,
+    "passed": true
+  },
+  {
+    "status": 500,
+    "elapsed_s": 10.0826735,
+    "case": "idle_timeout",
+    "ui_max_ms": 229,
+    "http_max_s": 0.7699904169999989,
+    "passed": true
+  },
+  {
+    "case": "30_replacements_readback",
+    "passed": true
+  }
+]

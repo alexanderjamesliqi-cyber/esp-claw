@@ -32,16 +32,31 @@ FRESULT f_chdir(const char *path) {
 // in ports/esp32/modmachine.c references their types and config structs.
 
 // machine_rtc stubs
-#include "driver/rtc_io.h"
-typedef struct { int dummy; } machine_rtc_config_t;
-machine_rtc_config_t machine_rtc_config;
-const mp_obj_type_t machine_rtc_type;
+#include "machine_rtc.h"
+machine_rtc_config_t machine_rtc_config = {
+    #if SOC_PM_SUPPORT_EXT0_WAKEUP
+    .ext0_pin = -1,
+    #endif
+};
+
+/* Never export zero-filled type objects: calling them can dereference NULL.
+ * These peripherals are not owned/lifecycle-managed by the embedded VM. */
+static mp_obj_t unavailable_make_new(const mp_obj_type_t *type, size_t n_args,
+                                    size_t n_kw, const mp_obj_t *args)
+{
+    (void)type; (void)n_args; (void)n_kw; (void)args;
+    mp_raise_NotImplementedError(MP_ERROR_TEXT("Peripheral unavailable in managed programs"));
+}
+MP_DEFINE_CONST_OBJ_TYPE(machine_rtc_type, MP_QSTR_RTC, MP_TYPE_FLAG_NONE,
+    make_new, unavailable_make_new);
 
 // machine_timer stubs
-const mp_obj_type_t machine_timer_type;
+MP_DEFINE_CONST_OBJ_TYPE(machine_timer_type, MP_QSTR_Timer, MP_TYPE_FLAG_NONE,
+    make_new, unavailable_make_new);
 
 // machine_touchpad stubs
-const mp_obj_type_t machine_touchpad_type;
+MP_DEFINE_CONST_OBJ_TYPE(machine_touchpad_type, MP_QSTR_TouchPad, MP_TYPE_FLAG_NONE,
+    make_new, unavailable_make_new);
 
 // ── Platform-specific machine functions ───────────────────────────────
 // Note: mp_machine_reset, mp_machine_reset_cause, mp_machine_get_freq,
