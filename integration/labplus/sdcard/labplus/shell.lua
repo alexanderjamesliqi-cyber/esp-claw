@@ -5,6 +5,8 @@ local system=require('system')
 local network=require('device_network')
 local json=require('json')
 local M={}
+local MENU_ANIMATION_MS=360
+local MENU_FRAME_MS=40
 M.palette={bg="#F3F6FC",card="#FFFFFF",ink="#172B4D",muted="#73829B",blue="#2563EB",green="#159C80",red="#DC4C64",border="#E1E8F2"}
 function M.new(host,cjk,logo,w,h)
  local S={page='boot',menu=false,library={},offset=0,wifi={},net={networks={}},notice='',password='',ssid='',focus='password',shift=false,symbols=false,visible=false}
@@ -288,11 +290,21 @@ function M.new(host,cjk,logo,w,h)
   if S.exiting and host.program_state()~='running' then S.exiting=false;S.go('home')
   elseif S.confirm_stop and host.program_state()~='running' then S.confirm_stop=false;S.draw() end
   if S.animation then
-   local frame=math.min(4,(now-S.animation.start)//40+1)
-   if frame>S.animation.frame then
+   local elapsed=math.max(0,now-S.animation.start)
+   local frame=elapsed//MENU_FRAME_MS+1
+   if elapsed>=MENU_ANIMATION_MS then S.animation=nil;S.draw()
+   elseif frame>S.animation.frame then
     S.animation.frame=frame
-    if frame==4 then S.animation=nil;S.draw()
-    else display.begin_frame({clear=false});display.fill_rect(0,0,w,h*frame//4,theme.bg);display.fill_rect(0,h*frame//4-3,w,3,theme.border);display.present();display.end_frame() end
+    -- A visible leading edge and eased travel make the downward gesture clear.
+    -- Reuse the display buffer; animation never allocates another framebuffer.
+    local progress=elapsed/MENU_ANIMATION_MS
+    local eased=1-(1-progress)*(1-progress)
+    local edge=math.floor(54+(h-54)*eased)
+    display.begin_frame({clear=false})
+    display.fill_rect(0,0,w,edge,theme.bg)
+    display.fill_rect(0,edge-3,w,3,theme.blue)
+    display.fill_round_rect((w-80)//2,edge-15,80,5,2,theme.blue)
+    display.present();display.end_frame()
    end
    return
   end
