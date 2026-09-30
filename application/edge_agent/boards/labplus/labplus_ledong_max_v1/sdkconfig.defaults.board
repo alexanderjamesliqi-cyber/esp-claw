@@ -83,3 +83,6 @@ CONFIG_MBEDTLS_CERTIFICATE_BUNDLE=y
 
 # Realtime audio must send cancel/input while receiving model audio.
 CONFIG_ESP_WS_CLIENT_SEPARATE_TX_LOCK=y
+
+# Read-only use of the factory ECDSA eFuse identity.
+CONFIG_MBEDTLS_HARDWARE_ECDSA_SIGN=y

@@ -1,4 +1,7 @@
 dependencies:
+  spark_identity:
+    path: ../spark_identity
+
   cap_boards:
     path: ../../claw_capabilities/cap_boards
 

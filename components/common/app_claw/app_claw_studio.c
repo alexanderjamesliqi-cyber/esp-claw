@@ -9,6 +9,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "mbedtls/base64.h"
+#include "spark_identity.h"
 
 #define STUDIO_REQUEST_MAX 1024
 #define STUDIO_RESPONSE_MAX 16384
@@ -38,6 +39,33 @@ static int studio_command(int argc, char **argv)
     request = cJSON_Parse((char *)tx->decoded);
     if (!request || !cJSON_IsString(cJSON_GetObjectItemCaseSensitive(request, "id")) ||
         !cJSON_IsString(cJSON_GetObjectItemCaseSensitive(request, "op"))) goto done;
+    const char *op = cJSON_GetObjectItemCaseSensitive(request,"op")->valuestring;
+    if (strcmp(op,"auth.info")==0 || strcmp(op,"auth.sign")==0) {
+        spark_identity_handle_t identity=NULL;
+        cJSON *payload=NULL,*reply=cJSON_CreateObject();
+        esp_err_t err=spark_identity_create(&identity);
+        if(err==ESP_OK) {
+            if(strcmp(op,"auth.info")==0)err=spark_identity_get_info(identity,&payload);
+            else {
+                cJSON *args=cJSON_GetObjectItemCaseSensitive(request,"args");
+                cJSON *message=cJSON_GetObjectItemCaseSensitive(args,"message");
+                err=cJSON_IsString(message)?spark_identity_sign(identity,message->valuestring,&payload):ESP_ERR_INVALID_ARG;
+            }
+        }
+        spark_identity_delete(identity);
+        if(!reply){cJSON_Delete(payload);goto done;}
+        cJSON_AddNumberToObject(reply,"v",1);
+        cJSON_AddStringToObject(reply,"id",cJSON_GetObjectItemCaseSensitive(request,"id")->valuestring);
+        cJSON_AddBoolToObject(reply,"ok",err==ESP_OK);
+        if(err==ESP_OK)cJSON_AddItemToObject(reply,"result",payload);
+        else {cJSON_Delete(payload);cJSON_AddStringToObject(reply,"error","Device has no protected factory identity or signing failed");}
+        response=cJSON_PrintUnformatted(reply);cJSON_Delete(reply);
+        if(!response)goto done;
+        size_t length=strlen(response),capacity=(length+2)/3*4+1;
+        encoded=malloc(capacity);if(!encoded)goto done;
+        if(mbedtls_base64_encode(encoded,capacity,&size,(unsigned char*)response,length)!=0)goto done;
+        printf("\nSPARK_STUDIO:%s\n",encoded);result=0;goto done;
+    }
     if (claw_paths_join(CLAW_PATH_DATA, "labplus/studio-request.json", tx->request, sizeof(tx->request)) != ESP_OK ||
         claw_paths_join(CLAW_PATH_DATA, "labplus/studio-request.tmp", tx->temporary, sizeof(tx->temporary)) != ESP_OK ||
         claw_paths_join(CLAW_PATH_DATA, "labplus/studio-response.json", tx->response, sizeof(tx->response)) != ESP_OK) goto done;

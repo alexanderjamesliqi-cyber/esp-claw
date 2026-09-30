@@ -1,0 +1,59 @@
+name: Build Spark product and factory firmware
+on:
+  push:
+    branches: [labplus-claw]
+    paths:
+      - 'components/**'
+      - 'application/**'
+      - 'integration/labplus/**'
+      - '.github/workflows/spark-firmware.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        image: [product, factory]
+    container: espressif/idf:v5.5.4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Prepare pinned SDK
+        shell: bash
+        run: |
+          . /opt/esp/idf/export.sh
+          git -C "$IDF_PATH" apply "$GITHUB_WORKSPACE/integration/labplus/patches/esp-idf.patch"
+          python -m pip install esp-bmgr-assist
+      - name: Build product
+        if: matrix.image == 'product'
+        shell: bash
+        run: |
+          . /opt/esp/idf/export.sh
+          cd application/edge_agent
+          cp ../../integration/labplus/build-config/sdkconfig sdkconfig
+          cp ../../integration/labplus/build-config/partitions_16MB.csv partitions_16MB.csv
+          cp ../../integration/labplus/build-config/dependencies.lock dependencies.lock
+          idf.py bmgr -c ./boards -b labplus_ledong_max_v1
+          idf.py build
+      - name: Build factory
+        if: matrix.image == 'factory'
+        shell: bash
+        run: |
+          . /opt/esp/idf/export.sh
+          cd application/spark_factory
+          idf.py set-target esp32p4
+          idf.py build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: spark-${{ matrix.image }}-${{ github.sha }}
+          path: |
+            application/*/build/*.bin
+            application/*/build/flasher_args.json
+            application/*/build/bootloader/bootloader.bin
+            application/*/build/partition_table/partition-table.bin
+          if-no-files-found: error
