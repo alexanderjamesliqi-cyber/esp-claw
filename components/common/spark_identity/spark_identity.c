@@ -5,6 +5,8 @@
 #include "esp_mac.h"
 #include "esp_random.h"
 #include "mbedtls/pk.h"
+#include "mbedtls/ecdsa.h"
+#include "spark_factory_ca.h"
 #include "mbedtls/sha256.h"
 #include "mbedtls/base64.h"
 #include "ecdsa/ecdsa_alt.h"
@@ -45,6 +47,14 @@ esp_err_t spark_identity_get_info(spark_identity_handle_t h,cJSON **out)
        !cJSON_AddStringToObject(info,"algorithm",SPARK_IDENTITY_ALGORITHM) ||
        !cJSON_AddBoolToObject(info,"efuseProtected",true) ||
        !cJSON_AddStringToObject(info,"publicKey",(char*)pem)){cJSON_Delete(info);free(pem);return ESP_ERR_NO_MEM;}
+    unsigned char certificate[64],encoded[89];size_t length=0;
+    if(esp_efuse_get_key_dis_write(EFUSE_BLK_KEY1) && esp_efuse_get_key_dis_write(EFUSE_BLK_KEY2) &&
+       esp_efuse_get_keypurpose_dis_write(EFUSE_BLK_KEY1) && esp_efuse_get_keypurpose_dis_write(EFUSE_BLK_KEY2) &&
+       esp_efuse_get_key_purpose(EFUSE_BLK_KEY1)==ESP_EFUSE_KEY_PURPOSE_USER && esp_efuse_get_key_purpose(EFUSE_BLK_KEY2)==ESP_EFUSE_KEY_PURPOSE_USER &&
+       esp_efuse_read_block(EFUSE_BLK_KEY1,certificate,0,256)==ESP_OK && esp_efuse_read_block(EFUSE_BLK_KEY2,certificate+32,0,256)==ESP_OK &&
+       mbedtls_base64_encode(encoded,sizeof(encoded),&length,certificate,64)==0){
+        if(!cJSON_AddStringToObject(info,"certificate",(char*)encoded)){cJSON_Delete(info);free(pem);return ESP_ERR_NO_MEM;}
+    }
     free(pem);*out=info;return ESP_OK;
 }
 esp_err_t spark_identity_sign(spark_identity_handle_t h,const char *message,cJSON **out)
@@ -59,4 +69,28 @@ esp_err_t spark_identity_sign(spark_identity_handle_t h,const char *message,cJSO
     cJSON *proof=cJSON_CreateObject();
     if(!proof || !cJSON_AddStringToObject(proof,"deviceId",h->id) || !cJSON_AddStringToObject(proof,"signature",(char*)encoded)){cJSON_Delete(proof);return ESP_ERR_NO_MEM;}
     *out=proof;return ESP_OK;
+}
+
+/* Verify the manufacturer's compact P1363 certificate before a factory burn. */
+esp_err_t spark_identity_verify_certificate(spark_identity_handle_t h,const unsigned char signature[64])
+{
+    if(!h||!signature)return ESP_ERR_INVALID_ARG;
+    unsigned char der[128],digest[32];size_t size=0;
+    unsigned char *encoded=calloc(1,173);if(!encoded)return ESP_ERR_NO_MEM;
+    int length=mbedtls_pk_write_pubkey_der(&h->key,der,sizeof(der));
+    if(length<=0){free(encoded);return ESP_FAIL;}
+    if(mbedtls_base64_encode(encoded,173,&size,der+sizeof(der)-length,length)!=0){free(encoded);return ESP_FAIL;}
+    char *message=calloc(1,256);if(!message){free(encoded);return ESP_ERR_NO_MEM;}
+    snprintf(message,256,"SPARK-CERT-V1\nspark.mpython.cn\n%s\n%s",h->id,encoded);free(encoded);
+    int rc=mbedtls_sha256((unsigned char*)message,strlen(message),digest,0);free(message);
+    mbedtls_pk_context *authority=calloc(1,sizeof(*authority));
+    if(!authority)return ESP_ERR_NO_MEM;
+    mbedtls_pk_init(authority);
+    if(rc==0)rc=mbedtls_pk_parse_public_key(authority,(const unsigned char*)SPARK_FACTORY_CA_PEM,sizeof(SPARK_FACTORY_CA_PEM));
+    mbedtls_mpi r,s;mbedtls_mpi_init(&r);mbedtls_mpi_init(&s);
+    if(rc==0)rc=mbedtls_mpi_read_binary(&r,signature,32);
+    if(rc==0)rc=mbedtls_mpi_read_binary(&s,signature+32,32);
+    if(rc==0){mbedtls_ecp_keypair *key=mbedtls_pk_ec(*authority);rc=mbedtls_ecdsa_verify(&key->MBEDTLS_PRIVATE(grp),digest,32,&key->MBEDTLS_PRIVATE(Q),&r,&s);}
+    mbedtls_mpi_free(&r);mbedtls_mpi_free(&s);mbedtls_pk_free(authority);free(authority);
+    return rc==0?ESP_OK:ESP_ERR_INVALID_ARG;
 }

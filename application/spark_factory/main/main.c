@@ -66,6 +66,28 @@ static int sign_challenge(int argc,char **argv)
     }else rc=1;
     cJSON_Delete(proof);spark_identity_delete(identity);free(message);return rc;
 }
+static int install_certificate(int argc,char **argv)
+{
+    if(argc!=3 || strcmp(argv[2],"CONFIRM_CERT")!=0)return 1;
+    unsigned char signature[64];size_t size=0;
+    if(mbedtls_base64_decode(signature,sizeof(signature),&size,(unsigned char*)argv[1],strlen(argv[1]))!=0 || size!=64)return 1;
+    spark_identity_handle_t identity=NULL;
+    esp_err_t err=spark_identity_create(&identity);
+    if(err==ESP_OK)err=spark_identity_verify_certificate(identity,signature);
+    spark_identity_delete(identity);
+    if(err!=ESP_OK){puts("FACTORY_ERROR: invalid manufacturer certificate");return 1;}
+    if(!esp_efuse_key_block_unused(EFUSE_BLK_KEY1)||!esp_efuse_key_block_unused(EFUSE_BLK_KEY2)){identity_json();return 1;}
+    err=esp_efuse_batch_write_begin();if(err!=ESP_OK)return 1;
+    if(err==ESP_OK)err=esp_efuse_write_block(EFUSE_BLK_KEY1,signature,0,256);
+    if(err==ESP_OK)err=esp_efuse_write_block(EFUSE_BLK_KEY2,signature+32,0,256);
+    if(err==ESP_OK)err=esp_efuse_set_key_dis_write(EFUSE_BLK_KEY1);
+    if(err==ESP_OK)err=esp_efuse_set_key_dis_write(EFUSE_BLK_KEY2);
+    if(err==ESP_OK)err=esp_efuse_set_keypurpose_dis_write(EFUSE_BLK_KEY1);
+    if(err==ESP_OK)err=esp_efuse_set_keypurpose_dis_write(EFUSE_BLK_KEY2);
+    if(err==ESP_OK)err=esp_efuse_batch_write_commit();else esp_efuse_batch_write_cancel();
+    if(err!=ESP_OK){puts("FACTORY_ERROR: certificate burn failed; quarantine device");return 1;}
+    identity_json();return 0;
+}
 void app_main(void)
 {
     /* This image has no ADC/radio users. Enable a true entropy source for key generation. */
@@ -77,6 +99,8 @@ void app_main(void)
     const esp_console_cmd_t status={.command="identity",.help="Read factory public identity; never exposes private key",.func=inspect};
     const esp_console_cmd_t burn={.command="provision",.help="One-time KEY0 burn: provision <MAC> CONFIRM_EFUSE",.func=provision};
     const esp_console_cmd_t sign={.command="sign",.help="Sign a base64 factory challenge with the protected key",.func=sign_challenge};
+    const esp_console_cmd_t attest={.command="attest",.help="Install offline manufacturer certificate: attest <base64> CONFIRM_CERT",.func=install_certificate};
+    ESP_ERROR_CHECK(esp_console_cmd_register(&attest));
     ESP_ERROR_CHECK(esp_console_cmd_register(&sign));
     ESP_ERROR_CHECK(esp_console_cmd_register(&status));ESP_ERROR_CHECK(esp_console_cmd_register(&burn));
     ESP_ERROR_CHECK(esp_console_start_repl(repl));

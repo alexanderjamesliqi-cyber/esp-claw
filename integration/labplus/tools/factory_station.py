@@ -1,10 +1,10 @@
 """Factory station: private key generation stays on the device. No key export."""
 import argparse,base64,getpass,hashlib,json,re,secrets,time
 from pathlib import Path
-import httpx
 import serial
 from cryptography.hazmat.primitives import hashes,serialization
 from cryptography.hazmat.primitives.asymmetric import ec
+from cryptography.hazmat.primitives.asymmetric.utils import decode_dss_signature
 
 ORIGIN='https://spark.mpython.cn'
 
@@ -40,46 +40,47 @@ def verify_identity(info,proof,message):
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--port',required=True)
-    p.add_argument('--device',required=True,help='机身/工单上的 12 位小写 MAC；现场核对后才允许写入')
-    p.add_argument('--label',default='')
+    p.add_argument('--device',required=True,help='现场工单上的 12 位小写 MAC')
+    p.add_argument('--issuer-key',required=True,type=Path,help='工厂本地签发私钥，不上传服务器')
     p.add_argument('--records',type=Path,default=Path.home()/'spark-factory-records')
-    p.add_argument('--resume',action='store_true',help='读取已生成的相同身份并完成登记，不写 eFuse')
+    p.add_argument('--resume',action='store_true',help='恢复未完成的工厂流程；不重新生成私钥')
     a=p.parse_args()
     if not re.fullmatch('[a-f0-9]{12}',a.device):p.error('Invalid device ID')
-    password=getpass.getpass('Spark 出厂管理员密码：')
-    with httpx.Client(base_url=ORIGIN,timeout=20,follow_redirects=False,trust_env=False) as client:
-        r=client.post('/api/admin/login',json={'password':password});password=None;r.raise_for_status()
-        client.headers['Authorization']='Bearer '+r.json()['token']
-        try:
-            console=Console(a.port)
-            try:
-                status=console.command('identity')
-                match=re.search(r'DEVICE:([a-f0-9]{12}) REV:(\d+) KEY0_UNUSED:([01])',status)
-                if not match or match[1]!=a.device or int(match[2])<300:raise RuntimeError('芯片型号/版本/编号不匹配，停止。')
-                if match[3]=='1':
-                    if a.resume:raise RuntimeError('设备尚未生成身份，不能恢复登记。')
-                    print('即将永久写入 KEY0，仅用于这一台出厂设备：'+a.device)
-                    if input('输入该设备编号确认一次性写入：').strip()!=a.device:raise RuntimeError('未确认；没有写入。')
-                    status=console.command('provision '+a.device+' CONFIRM_EFUSE')
-                info=console.record(status)
-                message=f"SPARK-AI-V1\nspark.mpython.cn\n{a.device}\n{secrets.token_hex(16)}\n{secrets.token_hex(32)}\n{hashlib.sha256(b'factory-proof').hexdigest()}\n{int(time.time()*1000)+30000}"
-                verify_identity(info,console.sign(message),message)
-                a.records.mkdir(parents=True,exist_ok=True)
-                record=a.records/(a.device+'.json')
-                if record.exists() and json.loads(record.read_text())['publicKey']!=info['publicKey']:raise RuntimeError('同一设备的公钥发生变化，停止登记。')
-                record.write_text(json.dumps(info,ensure_ascii=False,indent=2))
-                devices=client.get('/api/admin/devices');devices.raise_for_status()
-                existing=next((d for d in devices.json()['devices'] if d['deviceId']==a.device),None)
-                if existing and (existing['publicKey']!=info['publicKey'] or not existing['enabled']):raise RuntimeError('已有记录公钥不一致或已被吊销，需要管理员核查。')
-                r=client.put('/api/admin/devices',json={'deviceId':a.device,'publicKey':info['publicKey'],'enabled':True,'label':a.label or a.device});r.raise_for_status()
-                # Verify actual relay authorization without consuming model quota.
-                challenge=client.post('/v1/auth/challenge',json={'deviceId':a.device,'requestHash':hashlib.sha256(b'models').hexdigest()});challenge.raise_for_status();challenge=challenge.json()
-                proof=console.sign(challenge['message']);proof['challengeId']=challenge['id']
-                bearer=base64.b64encode(json.dumps(proof,separators=(',',':')).encode()).decode()
-                r=client.get('/v1/models',headers={'Authorization':'Bearer '+bearer});r.raise_for_status()
-                print('PASS: 硬件签名、公钥登记、线上验签完成。公钥记录：'+str(record))
-                print('现在刷入正式固件；以后升级不再运行出厂步骤。')
-            finally:console.port.close()
-        finally:client.post('/api/admin/logout',json={})
+    raw=a.issuer_key.read_bytes()
+    try:issuer=serialization.load_pem_private_key(raw,password=None)
+    except TypeError:issuer=serialization.load_pem_private_key(raw,password=getpass.getpass('工厂签发密钥口令：').encode())
+    if not isinstance(issuer,ec.EllipticCurvePrivateKey) or not isinstance(issuer.curve,ec.SECP256R1):raise ValueError('Expected a P-256 issuing key')
+    console=Console(a.port)
+    try:
+        status=console.command('identity')
+        match=re.search(r'DEVICE:([a-f0-9]{12}) REV:(\d+) KEY0_UNUSED:([01])',status)
+        if not match or match[1]!=a.device or int(match[2])<300:raise RuntimeError('芯片版本/编号不匹配，停止。')
+        if match[3]=='1':
+            if a.resume:raise RuntimeError('设备尚未生成身份，不能恢复。')
+            print('将为这台出厂设备永久写入 KEY0 私钥及 KEY1/KEY2 证书：'+a.device)
+            if input('输入该设备编号确认：').strip()!=a.device:raise RuntimeError('未确认；没有写入。')
+            status=console.command('provision '+a.device+' CONFIRM_EFUSE')
+        info=console.record(status)
+        device_key=serialization.load_pem_public_key(info['publicKey'].encode())
+        der=device_key.public_bytes(serialization.Encoding.DER,serialization.PublicFormat.SubjectPublicKeyInfo)
+        message=f"SPARK-CERT-V1\nspark.mpython.cn\n{a.device}\n{base64.b64encode(der).decode()}".encode()
+        if 'certificate' not in info:
+            r,s=decode_dss_signature(issuer.sign(message,ec.ECDSA(hashes.SHA256())))
+            certificate=base64.b64encode(r.to_bytes(32,'big')+s.to_bytes(32,'big')).decode()
+            info=console.record(console.command('attest '+certificate+' CONFIRM_CERT'))
+            if info.get('certificate')!=certificate:raise RuntimeError('证书写入或回读失败；隔离设备。')
+        else:
+            from cryptography.hazmat.primitives.asymmetric.utils import encode_dss_signature
+            cert=base64.b64decode(info['certificate'],validate=True)
+            if len(cert)!=64:raise ValueError('Invalid certificate')
+            issuer.public_key().verify(encode_dss_signature(int.from_bytes(cert[:32],'big'),int.from_bytes(cert[32:],'big')),message,ec.ECDSA(hashes.SHA256()))
+        challenge=f"SPARK-AI-V1\nspark.mpython.cn\n{a.device}\n{secrets.token_hex(16)}\n{secrets.token_hex(32)}\n{hashlib.sha256(b'factory-proof').hexdigest()}\n{int(time.time()*1000)+30000}"
+        verify_identity(info,console.sign(challenge),challenge)
+        a.records.mkdir(parents=True,exist_ok=True);record=a.records/(a.device+'.json')
+        if record.exists() and json.loads(record.read_text())['publicKey']!=info['publicKey']:raise RuntimeError('同一设备公钥变化，停止。')
+        record.write_text(json.dumps(info,ensure_ascii=False,indent=2))
+        print('PASS: 离线签发、证书回读、设备签名验证完成；无需服务器登记。')
+        print('公钥及证书记录：'+str(record))
+    finally:console.port.close()
 
 if __name__=='__main__':main()

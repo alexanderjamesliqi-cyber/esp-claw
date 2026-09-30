@@ -34,6 +34,9 @@ esp_err_t spark_relay_authorize(const char *body,char digest_hex[65],char **auth
     if((err=spark_identity_get_info(identity,&info))!=ESP_OK)goto done;
     request=cJSON_CreateObject();
     if(!request || !cJSON_AddStringToObject(request,"deviceId",cJSON_GetObjectItemCaseSensitive(info,"deviceId")->valuestring) || !cJSON_AddStringToObject(request,"requestHash",digest_hex)) {err=ESP_ERR_NO_MEM;goto done;}
+    cJSON *certificate=cJSON_GetObjectItemCaseSensitive(info,"certificate");
+    if(!cJSON_IsString(certificate) || !cJSON_AddStringToObject(request,"certificate",certificate->valuestring) ||
+       !cJSON_AddStringToObject(request,"publicKey",cJSON_GetObjectItemCaseSensitive(info,"publicKey")->valuestring)){err=ESP_ERR_INVALID_STATE;goto done;}
     payload=cJSON_PrintUnformatted(request);
     if(!payload){err=ESP_ERR_NO_MEM;goto done;}
     esp_http_client_config_t *cfg=calloc(1,sizeof(*cfg));

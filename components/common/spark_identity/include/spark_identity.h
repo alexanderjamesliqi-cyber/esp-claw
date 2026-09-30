@@ -13,3 +13,5 @@ esp_err_t spark_identity_sign(spark_identity_handle_t identity, const char *mess
 
 /* Blocking network operation: call only from a worker task. Caller frees authorization. */
 esp_err_t spark_relay_authorize(const char *body, char digest_hex[65], char **authorization);
+
+esp_err_t spark_identity_verify_certificate(spark_identity_handle_t identity,const unsigned char signature[64]);

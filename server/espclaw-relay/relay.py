@@ -203,7 +203,7 @@ def create_app(settings: Settings | None = None, *, http_transport=None, ws_conn
     async def registry():
         response = await app.state.http.get(cfg.device_registry_url, timeout=5)
         response.raise_for_status()
-        return {device['deviceId']:device for device in response.json()['devices']}
+        return response.json()
 
     signatures = DeviceSignatures(registry) if cfg.device_registry_url else None
 
@@ -214,7 +214,7 @@ def create_app(settings: Settings | None = None, *, http_transport=None, ws_conn
 
     async def challenge(request):
         if not signatures:
-            return error(404, "Factory authentication is unavailable")
+            return error(404, "Factory certificate authentication is unavailable")
         try:
             raw = bytearray()
             async with asyncio.timeout(5):
@@ -224,7 +224,7 @@ def create_app(settings: Settings | None = None, *, http_transport=None, ws_conn
                         return error(413,"Request too large")
             return JSONResponse(await signatures.challenge(json.loads(raw)), headers={"Cache-Control":"no-store"})
         except Exception:
-            return error(403,"Device not authorized or challenge unavailable")
+            return error(403,"Device certificate invalid, blocked or challenge unavailable")
 
     async def health(request):
         return JSONResponse({"status": "ok"})
@@ -348,7 +348,13 @@ def create_app(settings: Settings | None = None, *, http_transport=None, ws_conn
                             else:
                                 await ws.send_bytes(value)
 
+                    async def watch_blacklist():
+                        while True:
+                            await asyncio.sleep(5)
+                            if await signatures.is_blocked(device):
+                                raise PermissionError("Device blocked")
                     tasks = [asyncio.create_task(to_cloud()), asyncio.create_task(to_device())]
+                    if signatures:tasks.append(asyncio.create_task(watch_blacklist()))
                     try:
                         done, _ = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
                         for task in done:
@@ -359,6 +365,8 @@ def create_app(settings: Settings | None = None, *, http_transport=None, ws_conn
                                 task.cancel()
                             await asyncio.gather(*tasks, return_exceptions=True)
                         tasks = []
+        except PermissionError:
+            code, reason = 1008, "Device blocked"
         except TimeoutError:
             code, reason = 1001, "Session time limit reached"
         except ValueError:
