@@ -21,8 +21,12 @@ jobs:
     container: espressif/idf:v5.5.4
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
+      - name: Fetch product source dependencies
+        if: matrix.image == 'product'
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git submodule update --init --depth 1 components/micropython_source components/claw_capabilities/cap_mpy/usercmodule/lv_binding_micropython
+          git -C components/claw_capabilities/cap_mpy/usercmodule/lv_binding_micropython submodule update --init --depth 1 pycparser
       - name: Prepare pinned SDK
         shell: bash
         run: |
