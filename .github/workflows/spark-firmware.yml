@@ -53,6 +53,32 @@ jobs:
           idf.py build
       - name: Package firmware and update tools
         run: python integration/labplus/tools/package_ci.py --image ${{ matrix.image }} --output release
+      - name: Preserve configure diagnostics
+        if: failure() && matrix.image == 'product'
+        shell: bash
+        run: |
+          python -m pip show idf-component-manager esp-idf-kconfig
+          grep -A4 ESP_VIDEO_USE_CUSTOMIZED_ESP_H264_VERSION application/edge_agent/main/Kconfig.projbuild
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          path = Path('application/edge_agent/build/config/sdkconfig.json')
+          if path.exists():
+              config = json.loads(path.read_text())
+              print({k: v for k, v in config.items() if 'ESP_VIDEO_USE_CUSTOMIZED' in k or k == 'IDF_TARGET'})
+          for p in Path('application/edge_agent/build').glob('*kconfig*'):
+              print(p, p.read_text()[:10000] if p.is_file() else '')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: failure() && matrix.image == 'product'
+        with:
+          name: spark-build-diagnostics-${{ github.sha }}
+          path: |
+            application/edge_agent/build/config/sdkconfig.json
+            application/edge_agent/build/config/kconfig_menus.json
+            application/edge_agent/build/config/kconfig_sources.in
+            application/edge_agent/build/config/kconfig_projbuild.in
+            application/edge_agent/build/CMakeCache.txt
       - uses: actions/upload-artifact@v4
         with:
           name: spark-${{ matrix.image }}-${{ github.sha }}
