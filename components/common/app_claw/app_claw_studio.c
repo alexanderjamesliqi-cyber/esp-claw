@@ -1,3 +1,4 @@
+#include "esp_ota_ops.h"
 /* Serial transport only. The existing product service owns all program mutations. */
 #include <stdio.h>
 #include <stdlib.h>
@@ -45,7 +46,11 @@ static int studio_command(int argc, char **argv)
         cJSON *payload=NULL,*reply=cJSON_CreateObject();
         esp_err_t err=spark_identity_create(&identity);
         if(err==ESP_OK) {
-            if(strcmp(op,"auth.info")==0)err=spark_identity_get_info(identity,&payload);
+            if(strcmp(op,"auth.info")==0){
+                err=spark_identity_get_info(identity,&payload);
+                const esp_partition_t *running=esp_ota_get_running_partition();
+                if(err==ESP_OK && running)cJSON_AddNumberToObject(payload,"appPartitionOffset",running->address);
+            }
             else {
                 cJSON *args=cJSON_GetObjectItemCaseSensitive(request,"args");
                 cJSON *message=cJSON_GetObjectItemCaseSensitive(args,"message");

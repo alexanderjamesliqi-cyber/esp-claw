@@ -9,6 +9,7 @@
 #include "esp_chip_info.h"
 #include "bootloader_random.h"
 #include "mbedtls/ecp.h"
+#include "mbedtls/base64.h"
 #include "mbedtls/platform_util.h"
 #include "hal/efuse_ll.h"
 #include "soc/soc_caps.h"
@@ -52,16 +53,31 @@ static int provision(int argc,char **argv)
     if(rc!=0){puts("FACTORY_ERROR: provisioning failed; quarantine device and inspect efuses");return 1;}
     identity_json();return 0;
 }
+static int sign_challenge(int argc,char **argv)
+{
+    if(argc!=2)return 1;
+    unsigned char *message=calloc(1,385);size_t size=0;
+    if(!message)return 1;
+    int rc=mbedtls_base64_decode(message,384,&size,(unsigned char*)argv[1],strlen(argv[1]));
+    spark_identity_handle_t identity=NULL;cJSON *proof=NULL;
+    if(rc==0 && size>0 && strlen((char*)message)==size && spark_identity_create(&identity)==ESP_OK && spark_identity_sign(identity,(char*)message,&proof)==ESP_OK){
+        char *text=cJSON_PrintUnformatted(proof);
+        if(text){printf("SPARK_PROOF:%s\n",text);free(text);}else rc=1;
+    }else rc=1;
+    cJSON_Delete(proof);spark_identity_delete(identity);free(message);return rc;
+}
 void app_main(void)
 {
     /* This image has no ADC/radio users. Enable a true entropy source for key generation. */
     bootloader_random_enable();
     esp_console_repl_t *repl=NULL;
-    esp_console_repl_config_t cfg=ESP_CONSOLE_REPL_CONFIG_DEFAULT();cfg.prompt="factory> ";cfg.task_stack_size=12288;
+    esp_console_repl_config_t cfg=ESP_CONSOLE_REPL_CONFIG_DEFAULT();cfg.prompt="factory> ";cfg.task_stack_size=12288;cfg.max_cmdline_length=1024;
     esp_console_dev_usb_serial_jtag_config_t dev=ESP_CONSOLE_DEV_USB_SERIAL_JTAG_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_console_new_repl_usb_serial_jtag(&dev,&cfg,&repl));
     const esp_console_cmd_t status={.command="identity",.help="Read factory public identity; never exposes private key",.func=inspect};
     const esp_console_cmd_t burn={.command="provision",.help="One-time KEY0 burn: provision <MAC> CONFIRM_EFUSE",.func=provision};
+    const esp_console_cmd_t sign={.command="sign",.help="Sign a base64 factory challenge with the protected key",.func=sign_challenge};
+    ESP_ERROR_CHECK(esp_console_cmd_register(&sign));
     ESP_ERROR_CHECK(esp_console_cmd_register(&status));ESP_ERROR_CHECK(esp_console_cmd_register(&burn));
     ESP_ERROR_CHECK(esp_console_start_repl(repl));
 }

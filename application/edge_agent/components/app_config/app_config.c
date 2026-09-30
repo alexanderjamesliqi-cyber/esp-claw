@@ -49,8 +49,13 @@ typedef struct {
 #define APP_DEFAULT_LLM_TIMEOUT_MS           "120000"
 #define APP_DEFAULT_LLM_MAX_TOKENS           "8192"
 #define APP_DEFAULT_LLM_DEFAULT_IMAGE_MAX_BYTES "524288"
+#if CONFIG_SPARK_FACTORY_RELAY
+#define APP_DEFAULT_LLM_MAX_TOKENS_FIELD     "max_tokens"
+#define APP_DEFAULT_LLM_SUPPORTS_TOOLS       "true"
+#else
 #define APP_DEFAULT_LLM_MAX_TOKENS_FIELD     ""
 #define APP_DEFAULT_LLM_SUPPORTS_TOOLS       "false"
+#endif
 #define APP_DEFAULT_LLM_SUPPORTS_VISION      "false"
 #define APP_DEFAULT_LLM_IMAGE_REMOTE_URL_ONLY "false"
 #define APP_DEFAULT_QQ_APP_ID                ""
