@@ -57,6 +57,7 @@ jobs:
         if: failure() && matrix.image == 'product'
         shell: bash
         run: |
+          . /opt/esp/idf/export.sh
           python -m pip show idf-component-manager esp-idf-kconfig
           grep -A4 ESP_VIDEO_USE_CUSTOMIZED_ESP_H264_VERSION application/edge_agent/main/Kconfig.projbuild
           python - <<'PY'

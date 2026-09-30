@@ -3,7 +3,7 @@ menu "App Config"
 # The local esp_video replacement omits this upstream manifest option.
 # Keep it in main so it is visible during initial dependency discovery.
 config ESP_VIDEO_USE_CUSTOMIZED_ESP_H264_VERSION
-    bool
+    bool "Use customized esp_h264 version"
     default n
 
 menu "Default Wi-Fi Settings"
