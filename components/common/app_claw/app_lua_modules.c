@@ -1,3 +1,4 @@
+#include "spark_identity.h"
 #include "sdkconfig.h"
 #if CONFIG_APP_CLAW_CAP_MPY
 #include "runner.h"
@@ -504,6 +505,19 @@ static esp_err_t app_lua_websocket_auth(const char *url, char *headers, size_t s
 {
     /* The realtime UI must not call its own single-threaded HTTP server to
      * read a key: a slow upload would then stop rendering/touch handling. */
+    const char *relay = "wss://spark.mpython.cn/api-ws/v1/realtime?model=";
+    if (strncmp(url, relay, strlen(relay)) == 0) {
+        const char *model = url + strlen(relay);
+        if (!*model || strlen(model)>100 || strspn(model,"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.-") != strlen(model)) return ESP_ERR_INVALID_ARG;
+        char body[112], digest[65]; char *authorization=NULL;
+        snprintf(body,sizeof(body),"realtime:%s",model);
+        esp_err_t err=spark_relay_authorize(body,digest,&authorization);
+        if(err==ESP_OK){
+            int n=snprintf(headers,size,"Authorization: %s\r\n",authorization);
+            if(n<0||(size_t)n>=size)err=ESP_ERR_INVALID_SIZE;
+        }
+        free(authorization);return err;
+    }
     const char *prefix = "wss://ws-";
     if (strncmp(url, prefix, strlen(prefix)) != 0) return ESP_ERR_INVALID_ARG;
     const char *host = url + strlen(prefix);

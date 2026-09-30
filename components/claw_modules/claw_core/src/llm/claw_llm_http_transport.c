@@ -1,3 +1,4 @@
+#include "spark_identity.h"
 /*
  * SPDX-FileCopyrightText: 2026 Espressif Systems (Shanghai) CO LTD
  *
@@ -317,7 +318,17 @@ esp_err_t claw_llm_http_post_json(const claw_llm_http_json_request_t *request,
 
     esp_http_client_set_method(client, HTTP_METHOD_POST);
     esp_http_client_set_header(client, "Content-Type", "application/json");
-    auth_header_value = build_auth_header_value(request->auth_type, request->api_key);
+    if (strcmp(request->url, "https://spark.mpython.cn/v1/chat/completions") == 0) {
+        char digest[65];
+        err = spark_relay_authorize(sanitized_body, digest, &auth_header_value);
+        if (err != ESP_OK) {
+            *out_error_message = dup_printf("Factory device authorization failed");
+            goto cleanup;
+        }
+        esp_http_client_set_header(client, "X-Spark-Request-Hash", digest);
+    } else {
+        auth_header_value = build_auth_header_value(request->auth_type, request->api_key);
+    }
     if (auth_header_value) {
         esp_http_client_set_header(client, auth_header_name(request->auth_type), auth_header_value);
     }

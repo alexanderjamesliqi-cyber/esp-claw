@@ -1,0 +1,19 @@
+[Unit]
+Description=Spark ESP-Claw HTTP and realtime relay
+After=network-online.target spark-studio.service
+Wants=network-online.target
+[Service]
+Type=simple
+User=spark-relay
+Group=spark-relay
+WorkingDirectory=/opt/spark-relay/current
+EnvironmentFile=/etc/spark-relay/runtime.env
+ExecStart=/opt/spark-relay/current/.venv/bin/uvicorn relay:create_app --factory --host 127.0.0.1 --port 8000 --workers 1 --no-access-log --ws-max-size 262144 --ws-max-queue 4 --limit-concurrency 64
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+[Install]
+WantedBy=multi-user.target

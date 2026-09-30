@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+set -euo pipefail
+sha="${1:-}"
+[[ $# == 1 && "$sha" =~ ^[a-f0-9]{40}$ ]] || exit 64
+base=/opt/spark-relay
+release="$base/releases/$sha"
+[[ -f "$release/relay.py" && -x "$release/.venv/bin/uvicorn" ]] || exit 66
+previous=$(readlink -f "$base/current" || true)
+rollback() {
+  if [[ -n "$previous" && -d "$previous" ]]; then
+    ln -sfn "$previous" "$base/current.rollback"
+    mv -Tf "$base/current.rollback" "$base/current"
+    systemctl restart spark-relay
+  else
+    systemctl stop spark-relay
+  fi
+  echo 'Relay deployment failed; restored prior service state' >&2
+}
+trap rollback ERR
+ln -sfn "$release" "$base/current.next"
+mv -Tf "$base/current.next" "$base/current"
+systemctl restart spark-relay
+healthy=false
+for attempt in $(seq 1 30); do
+  if curl --silent --fail http://127.0.0.1:8000/healthz | grep -q '"status":"ok"' &&
+     curl --silent --fail http://127.0.0.1:8000/v1/deployment | grep -q "$sha"; then healthy=true; break; fi
+  sleep 1
+done
+[[ "$healthy" == true ]]
+trap - ERR
+echo "Deployed relay $sha"

@@ -1,0 +1,58 @@
+name: Test and deploy Spark ESP relay
+on:
+  push:
+    branches: [labplus-claw]
+    paths: ['server/espclaw-relay/**', '.github/workflows/spark-relay.yml']
+  pull_request:
+    paths: ['server/espclaw-relay/**', '.github/workflows/spark-relay.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -r server/espclaw-relay/requirements-dev.txt
+      - run: python -m pytest -q
+        working-directory: server/espclaw-relay
+  deploy:
+    needs: test
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/labplus-claw'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    concurrency:
+      group: spark-relay-production
+      cancel-in-progress: false
+    environment:
+      name: spark-production
+      url: https://spark.mpython.cn/healthz
+    steps:
+      - uses: actions/checkout@v4
+      - name: Package tested relay
+        run: |
+          mkdir -p "$RUNNER_TEMP/release"
+          cp server/espclaw-relay/{relay.py,device_auth.py,requirements.txt} "$RUNNER_TEMP/release/"
+          printf '{"commit":"%s"}\n' "$GITHUB_SHA" > "$RUNNER_TEMP/release/deployment.json"
+          tar -czf "$RUNNER_TEMP/relay.tar.gz" -C "$RUNNER_TEMP/release" .
+      - name: Configure deployment identity
+        env:
+          DEPLOY_KEY: ${{ secrets.SPARK_RELAY_SSH_KEY }}
+          KNOWN_HOSTS: ${{ secrets.SPARK_DEPLOY_KNOWN_HOSTS }}
+        run: |
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$DEPLOY_KEY" > ~/.ssh/spark_relay
+          printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/spark_relay ~/.ssh/known_hosts
+      - name: Deploy and verify
+        run: |
+          ssh -i ~/.ssh/spark_relay -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=yes spark-deploy@120.77.19.55 "deploy-relay $GITHUB_SHA" < "$RUNNER_TEMP/relay.tar.gz"
+          curl --fail --retry 3 --max-time 20 https://spark.mpython.cn/healthz
+          curl --fail --retry 3 --max-time 20 https://spark.mpython.cn/v1/deployment > "$RUNNER_TEMP/revision.json"
+          python3 -c 'import os,json; assert json.load(open(os.environ["RUNNER_TEMP"]+"/revision.json"))["commit"]==os.environ["GITHUB_SHA"]'
+      - name: Remove runner identity
+        if: always()
+        run: rm -f ~/.ssh/spark_relay

@@ -10,3 +10,6 @@ esp_err_t spark_identity_create(spark_identity_handle_t *out);
 void spark_identity_delete(spark_identity_handle_t identity);
 esp_err_t spark_identity_get_info(spark_identity_handle_t identity, cJSON **out);
 esp_err_t spark_identity_sign(spark_identity_handle_t identity, const char *message, cJSON **out);
+
+/* Blocking network operation: call only from a worker task. Caller frees authorization. */
+esp_err_t spark_relay_authorize(const char *body, char digest_hex[65], char **authorization);

@@ -67,8 +67,8 @@ function M.start(ui,config)
     if state then return M.status() end
     config=config or {}
     last_error=nil
-    local host=config.host or 'ws-p36ff5o90h0ze4xt.cn-beijing.maas.aliyuncs.com'
-    assert(host:match('^[a-z0-9%-]+%.cn%-beijing%.maas%.aliyuncs%.com$'), 'invalid realtime host')
+    local host=config.host or 'spark.mpython.cn'
+    assert(host=='spark.mpython.cn' or host:match('^[a-z0-9%-]+%.cn%-beijing%.maas%.aliyuncs%.com$'), 'invalid realtime host')
     local model=config.model or 'qwen3.5-omni-flash-realtime'
     assert(model:match('^[a-z0-9%.%-]+$'),'invalid model')
     local s={ui=ui,model=model,voice=config.voice or 'Tina',ready=false,

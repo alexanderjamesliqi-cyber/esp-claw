@@ -22,6 +22,7 @@ idf_component_register(
         "include"
         "src"
     REQUIRES
+        spark_identity
         esp_http_client
         http_reuse
         esp-tls

@@ -10,6 +10,7 @@ import hmac
 import json
 import logging
 import os
+from pathlib import Path
 import re
 import time
 from urllib.parse import urlencode, urlsplit
@@ -23,6 +24,8 @@ from starlette.routing import Route, WebSocketRoute
 from starlette.websockets import WebSocket, WebSocketDisconnect
 from websockets.asyncio.client import connect
 from websockets.exceptions import ConnectionClosed
+
+from device_auth import DeviceSignatures, realtime_hash
 
 LOG = logging.getLogger("espclaw.relay")
 
@@ -44,6 +47,7 @@ class Settings:
     http_base: str = "https://dashscope.aliyuncs.com/compatible-mode/v1"
     text_models: tuple[str, ...] = ("qwen-plus",)
     realtime_models: tuple[str, ...] = ("qwen3.5-omni-flash-realtime",)
+    device_registry_url: str = ""
     max_http: int = 16
     max_ws: int = 16
     http_per_device: int = 2
@@ -59,8 +63,10 @@ class Settings:
     def __post_init__(self):
         if not self.cloud_key or any(c in self.cloud_key for c in "\r\n"):
             raise ValueError("CLOUD_API_KEY is required")
-        if not 1 <= len(self.device_tokens) <= 256:
+        if not self.device_registry_url and not 1 <= len(self.device_tokens) <= 256:
             raise ValueError("DEVICE_TOKENS_JSON must contain 1..256 devices")
+        if self.device_registry_url and self.device_registry_url != "http://127.0.0.1:3000/internal/device-keys":
+            raise ValueError("Device registry must be the local Spark service")
         seen = set()
         for name, token in self.device_tokens.items():
             if not re.fullmatch(r"[A-Za-z0-9_-]{1,64}", name) or not isinstance(token, str) or len(token) < 32 or token.startswith("replace-"):
@@ -88,6 +94,7 @@ class Settings:
         return cls(
             cloud_key=os.environ.get("CLOUD_API_KEY", ""),
             device_tokens=tokens,
+            device_registry_url=os.environ.get("DEVICE_REGISTRY_URL", ""),
             realtime_url=os.environ.get("CLOUD_REALTIME_URL", ""),
             http_base=os.environ.get("CLOUD_HTTP_BASE", "https://dashscope.aliyuncs.com/compatible-mode/v1"),
             text_models=tuple(x.strip() for x in os.environ.get("TEXT_MODELS", "qwen-plus").split(",") if x.strip()),
@@ -193,16 +200,49 @@ def create_app(settings: Settings | None = None, *, http_transport=None, ws_conn
             app.state.http = client
             yield
 
+    async def registry():
+        response = await app.state.http.get(cfg.device_registry_url, timeout=5)
+        response.raise_for_status()
+        return {device['deviceId']:device for device in response.json()['devices']}
+
+    signatures = DeviceSignatures(registry) if cfg.device_registry_url else None
+
+    async def authorize(authorization, digest):
+        if signatures:
+            return await signatures.authenticate(authorization, digest)
+        return admission.authenticate(authorization)
+
+    async def challenge(request):
+        if not signatures:
+            return error(404, "Factory authentication is unavailable")
+        try:
+            raw = bytearray()
+            async with asyncio.timeout(5):
+                async for chunk in request.stream():
+                    raw.extend(chunk)
+                    if len(raw)>1024:
+                        return error(413,"Request too large")
+            return JSONResponse(await signatures.challenge(json.loads(raw)), headers={"Cache-Control":"no-store"})
+        except Exception:
+            return error(403,"Device not authorized or challenge unavailable")
+
     async def health(request):
         return JSONResponse({"status": "ok"})
 
+    async def deployment(request):
+        try:
+            return JSONResponse(json.loads(Path(__file__).with_name("deployment.json").read_text()))
+        except (OSError,ValueError):
+            return error(503,"Deployment metadata unavailable")
+
     async def models(request):
-        if not admission.authenticate(request.headers.get("authorization")):
+        if not await authorize(request.headers.get("authorization"), hashlib.sha256(b"models").hexdigest()):
             return error(401, "Invalid device token")
         return JSONResponse({"object": "list", "data": [{"id": m, "object": "model"} for m in sorted(set(cfg.text_models + cfg.realtime_models))]})
 
     async def chat(request: Request):
-        device = admission.authenticate(request.headers.get("authorization"))
+        signed_hash = request.headers.get("x-spark-request-hash", "")
+        device = await authorize(request.headers.get("authorization"), signed_hash)
         if not device:
             return error(401, "Invalid device token")
         if not admission.acquire("http", device):
@@ -217,6 +257,8 @@ def create_app(settings: Settings | None = None, *, http_transport=None, ws_conn
                     raw.extend(chunk)
                     if len(raw) > cfg.max_body:
                         return error(413, "Request body too large")
+            if signatures and hashlib.sha256(raw).hexdigest() != signed_hash:
+                return error(403,"Request does not match device signature")
             try:
                 payload = json.loads(raw)
             except (ValueError, UnicodeError):
@@ -261,7 +303,8 @@ def create_app(settings: Settings | None = None, *, http_transport=None, ws_conn
                     admission.release("http", device)
 
     async def realtime(ws: WebSocket):
-        device = admission.authenticate(ws.headers.get("authorization"))
+        model = ws.query_params.get("model", cfg.realtime_models[0])
+        device = await authorize(ws.headers.get("authorization"), realtime_hash(model))
         if not device:
             await ws.close(code=1008)  # Before accept: HTTP 403, no cloud connection.
             return
@@ -334,7 +377,7 @@ def create_app(settings: Settings | None = None, *, http_transport=None, ws_conn
                 except (RuntimeError, OSError):
                     pass
 
-    app = Starlette(routes=[Route("/healthz", health), Route("/v1/models", models),
+    app = Starlette(routes=[Route("/v1/deployment", deployment), Route("/v1/auth/challenge", challenge, methods=["POST"]), Route("/healthz", health), Route("/v1/models", models),
                             Route("/v1/chat/completions", chat, methods=["POST"]),
                             WebSocketRoute("/v1/realtime", realtime),
                             WebSocketRoute("/api-ws/v1/realtime", realtime)], lifespan=lifespan)

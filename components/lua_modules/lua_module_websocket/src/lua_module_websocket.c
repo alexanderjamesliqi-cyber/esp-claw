@@ -38,6 +38,7 @@ typedef struct {
     size_t length;
     char *url;
     char *headers;
+    lua_websocket_auth_provider_t auth_provider;
     atomic_bool connected;
     atomic_bool failed;
     atomic_size_t queued_bytes;
@@ -56,6 +57,7 @@ static const char *ws_failure(ws_object_t *w)
     case 3: return "WebSocket message too large";
     case 4: return "WebSocket allocation failed";
     case 5: return "WebSocket peer closed";
+    case 6: return "Factory device authorization unavailable";
     default: return "WebSocket disconnected";
     }
 }
@@ -115,6 +117,19 @@ static atomic_uint s_live_clients;
 static void ws_sender(void *arg)
 {
     ws_object_t *w = arg;
+    /* Authentication may perform TLS. Keep it entirely off the Lua/UI task. */
+    if (w->auth_provider) {
+        if (w->auth_provider(w->url,w->headers,1024)!=ESP_OK) { ws_fail(w,6); goto finished; }
+    }
+    if (atomic_load(&w->closing)) goto finished;
+    esp_websocket_client_config_t *cfg = calloc(1, sizeof(*cfg));
+    if (!cfg) { ws_fail(w,4); goto finished; }
+    cfg->uri=w->url;cfg->headers=w->headers;cfg->disable_auto_reconnect=true;
+    cfg->crt_bundle_attach=esp_crt_bundle_attach;cfg->network_timeout_ms=WS_WAIT_MS;
+    cfg->buffer_size=4096;cfg->task_stack=8192;
+    w->client=esp_websocket_client_init(cfg);free(cfg);
+    if (!w->client || esp_websocket_register_events(w->client,WEBSOCKET_EVENT_ANY,ws_event,w)!=ESP_OK ||
+        esp_websocket_client_start(w->client)!=ESP_OK) { ws_fail(w,1); goto finished; }
     while (!atomic_load(&w->closing)) {
         ws_message_t message;
         if (xQueueReceive(w->outgoing, &message, pdMS_TO_TICKS(100)) != pdTRUE) continue;
@@ -125,6 +140,7 @@ static void ws_sender(void *arg)
         }
         free(message.data);
     }
+finished:
     xSemaphoreGive(w->sender_done);
     vTaskDelete(NULL);
 }
@@ -192,14 +208,8 @@ static int ws_new(lua_State *L)
     lua_getfield(L, 1, "configured_auth");
     bool configured_auth = lua_toboolean(L, -1);
     lua_pop(L, 1);
-    char configured_headers[384] = {0};
-    if (configured_auth) {
-        lua_websocket_auth_provider_t provider = atomic_load(&s_auth_provider);
-        if (!provider || provider(url, configured_headers, sizeof(configured_headers)) != ESP_OK) {
-            return luaL_error(L, "Configured WebSocket credentials unavailable for this endpoint");
-        }
-        headers = configured_headers;
-    }
+    lua_websocket_auth_provider_t provider=configured_auth ? atomic_load(&s_auth_provider) : NULL;
+    if(configured_auth && !provider)return luaL_error(L,"WebSocket authentication unavailable");
     ws_object_t **owner = lua_newuserdata(L, sizeof(*owner));
     *owner = NULL;
     luaL_setmetatable(L, WS_META);
@@ -220,28 +230,13 @@ static int ws_new(lua_State *L)
     atomic_init(&w->queued_bytes, 0);
     atomic_init(&w->failure_reason, 0);
     w->url = strdup(url);
-    w->headers = strdup(headers);
+    w->headers = configured_auth ? calloc(1,1024) : strdup(headers);
+    w->auth_provider=provider;
     w->queue = xQueueCreate(WS_QUEUE_LENGTH, sizeof(ws_message_t));
     w->outgoing = xQueueCreate(32, sizeof(ws_message_t));
     w->sender_done = xSemaphoreCreateBinary();
     if (!w->url || !w->headers || !w->queue || !w->outgoing || !w->sender_done) return luaL_error(L, "WebSocket allocation failed");
-    esp_websocket_client_config_t *cfg = calloc(1, sizeof(*cfg));
-    if (!cfg) return luaL_error(L, "WebSocket config allocation failed");
-    cfg->uri = w->url;
-    cfg->headers = w->headers;
-    cfg->disable_auto_reconnect = true;
-    cfg->crt_bundle_attach = esp_crt_bundle_attach;
-    cfg->network_timeout_ms = WS_WAIT_MS;
-    cfg->buffer_size = 4096;
-    cfg->task_stack = 8192;
-    w->client = esp_websocket_client_init(cfg);
-    free(cfg);
-    if (!w->client) return luaL_error(L, "WebSocket initialization failed");
-    if (esp_websocket_register_events(w->client, WEBSOCKET_EVENT_ANY, ws_event, w) != ESP_OK ||
-        esp_websocket_client_start(w->client) != ESP_OK) {
-        return luaL_error(L, "WebSocket start failed");
-    }
-    if (xTaskCreate(ws_sender, "ws_sender", 4096, w, 3, NULL) != pdPASS) return luaL_error(L, "WebSocket sender allocation failed");
+    if (xTaskCreate(ws_sender, "ws_sender", 12288, w, 3, NULL) != pdPASS) return luaL_error(L, "WebSocket sender allocation failed");
     w->sender_started = true;
     return 1;
 }
@@ -252,7 +247,7 @@ static int ws_send(lua_State *L)
     size_t n;
     const char *data = luaL_checklstring(L, 2, &n);
     luaL_argcheck(L, n <= WS_MAX_MESSAGE, 2, "message too large");
-    if (!w->client || !w->connected || w->failed) return luaL_error(L, "%s", ws_failure(w));
+    if (!w->connected || w->failed) return luaL_error(L, "%s", ws_failure(w));
     if (atomic_load(&w->outgoing_bytes) + n > 512 * 1024) return luaL_error(L, "WebSocket send queue full");
     ws_message_t message = {malloc(n ? n : 1), n};
     if (!message.data) return luaL_error(L, "WebSocket send allocation failed");

@@ -1,5 +1,10 @@
 menu "App Claw Config"
 
+    config SPARK_FACTORY_RELAY
+        bool "Use factory-authorized Spark cloud defaults"
+        default n
+
+
     config APP_CLAW_ENABLE_CLI
         bool "Enable App Claw CLI"
         default y

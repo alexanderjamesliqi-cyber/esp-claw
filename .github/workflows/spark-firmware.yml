@@ -38,6 +38,7 @@ jobs:
           cp ../../integration/labplus/build-config/sdkconfig sdkconfig
           cp ../../integration/labplus/build-config/partitions_16MB.csv partitions_16MB.csv
           cp ../../integration/labplus/build-config/dependencies.lock dependencies.lock
+          sed -i "s|/Users/james/esp32-build/labplus-esp-claw|$GITHUB_WORKSPACE|g" dependencies.lock
           idf.py bmgr -c ./boards -b labplus_ledong_max_v1
           idf.py build
       - name: Build factory

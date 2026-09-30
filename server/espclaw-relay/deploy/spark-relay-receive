@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -euo pipefail
+read -r verb sha extra <<< "${SSH_ORIGINAL_COMMAND:-}"
+[[ "$verb" == deploy-relay && "$sha" =~ ^[a-f0-9]{40}$ && -z "$extra" ]] || exit 64
+exec 9>/opt/spark-relay/.deploy.lock
+flock -w 300 9
+release="/opt/spark-relay/releases/$sha"
+[[ ! -e "$release" ]] || exit 65
+mkdir -m 755 "$release"
+tar -xzf - --no-same-owner --no-same-permissions -C "$release"
+[[ -f "$release/relay.py" && -f "$release/device_auth.py" ]] || exit 66
+find "$release" -type d -exec chmod 755 {} +
+find "$release" -type f -exec chmod 644 {} +
+python3.11 -m venv "$release/.venv"
+"$release/.venv/bin/pip" install --disable-pip-version-check --only-binary=:all: -q -r "$release/requirements.txt"
+sudo /usr/local/sbin/spark-relay-activate "$sha"

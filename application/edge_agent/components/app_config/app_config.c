@@ -33,11 +33,19 @@ typedef struct {
 #define APP_CONFIG_FIELD(member, nvs_key, default_literal) \
     { nvs_key, default_literal, offsetof(app_config_t, member), sizeof(((app_config_t *)0)->member) }
 
+#if CONFIG_SPARK_FACTORY_RELAY
+#define APP_DEFAULT_LLM_API_KEY              "factory-device"
+#define APP_DEFAULT_LLM_BACKEND_TYPE         "openai_compatible"
+#define APP_DEFAULT_LLM_MODEL                "qwen-plus"
+#define APP_DEFAULT_LLM_BASE_URL             "https://spark.mpython.cn/v1"
+#define APP_DEFAULT_LLM_AUTH_TYPE            "bearer"
+#else
 #define APP_DEFAULT_LLM_API_KEY              ""
 #define APP_DEFAULT_LLM_BACKEND_TYPE         ""
 #define APP_DEFAULT_LLM_MODEL                ""
 #define APP_DEFAULT_LLM_BASE_URL             ""
 #define APP_DEFAULT_LLM_AUTH_TYPE            ""
+#endif
 #define APP_DEFAULT_LLM_TIMEOUT_MS           "120000"
 #define APP_DEFAULT_LLM_MAX_TOKENS           "8192"
 #define APP_DEFAULT_LLM_DEFAULT_IMAGE_MAX_BYTES "524288"
