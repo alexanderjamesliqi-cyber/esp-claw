@@ -2,6 +2,7 @@
 import argparse
 import hashlib
 import json
+import os
 import shutil
 import subprocess
 from pathlib import Path
@@ -36,7 +37,7 @@ if a.image == 'product':
         shutil.copy2(root / 'integration/labplus/assets' / name, licenses / name)
 manifest = {
     'image': a.image,
-    'commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root, text=True).strip(),
+    'commit': os.environ.get('GITHUB_SHA') or subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root, text=True).strip(),
     'board': 'labplus_ledong_max_v1',
     'hardware_validated': False,
     'files': {str(f.relative_to(out)): hashlib.sha256(f.read_bytes()).hexdigest() for f in sorted(out.rglob('*')) if f.is_file()},
