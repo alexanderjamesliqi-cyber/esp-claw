@@ -51,12 +51,10 @@ jobs:
           cd application/spark_factory
           idf.py set-target esp32p4
           idf.py build
+      - name: Package firmware and update tools
+        run: python integration/labplus/tools/package_ci.py --image ${{ matrix.image }} --output release
       - uses: actions/upload-artifact@v4
         with:
           name: spark-${{ matrix.image }}-${{ github.sha }}
-          path: |
-            application/*/build/*.bin
-            application/*/build/flasher_args.json
-            application/*/build/bootloader/bootloader.bin
-            application/*/build/partition_table/partition-table.bin
+          path: release/
           if-no-files-found: error

@@ -56,7 +56,7 @@ def main():
     device=Device(a.port)
     try:after=studio(device,'auth.info')
     finally:device.close()
-    if (after['deviceId'],after['publicKey'])!=(before['deviceId'],before['publicKey']):raise RuntimeError('升级后身份校验失败，请保留备份并检查。')
+    if any(after.get(key)!=before.get(key) for key in ('deviceId','publicKey','certificate')):raise RuntimeError('升级后身份校验失败，请保留备份并检查。')
     print('PASS: 应用已更新，设备身份一致；NVS、OTA 元数据、storage 和 eFuse 未写入。')
     print('原应用备份：'+str(out))
 
