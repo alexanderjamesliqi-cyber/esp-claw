@@ -1,0 +1,5 @@
+# The compatibility component replaces upstream esp_video. Its dependency
+# manifest still references this upstream option during component resolution.
+config ESP_VIDEO_USE_CUSTOMIZED_ESP_H264_VERSION
+    bool
+    default n

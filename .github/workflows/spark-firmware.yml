@@ -39,9 +39,7 @@ jobs:
           cp ../../integration/labplus/build-config/partitions_16MB.csv partitions_16MB.csv
           cp ../../integration/labplus/build-config/dependencies.lock dependencies.lock
           sed -i "s|/Users/james/esp32-build/labplus-esp-claw|$GITHUB_WORKSPACE|g" dependencies.lock
-          idf.py bmgr -c ./boards -b labplus_ledong_max_v1 2>&1 | tee /tmp/bmgr.log || {
-            grep -q "Missing required kconfig option after retry" /tmp/bmgr.log
-          }
+          idf.py bmgr -c ./boards -b labplus_ledong_max_v1
           # bmgr performs an initial configure; restore the released product settings.
           cp ../../integration/labplus/build-config/sdkconfig sdkconfig
           idf.py build
