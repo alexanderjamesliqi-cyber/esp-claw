@@ -7,6 +7,8 @@ from device_auth import certificate_message
 import httpx
 from starlette.testclient import TestClient
 from relay import Settings,create_app
+from test_relay import Connector
+from device_auth import realtime_hash
 
 
 def test_factory_registry_gates_actual_routes():
@@ -21,7 +23,8 @@ def test_factory_registry_gates_actual_routes():
         if request.url.host=='127.0.0.1':return httpx.Response(200,json=trust)
         calls.append(request);return httpx.Response(200,json={'choices':[{'message':{'content':'ok'}}]})
     config=Settings(cloud_key='cloud-secret',device_tokens={},device_registry_url='http://127.0.0.1:3000/internal/device-keys',realtime_url='wss://example.com/realtime')
-    app=create_app(config,http_transport=httpx.MockTransport(upstream))
+    connector=Connector()
+    app=create_app(config,http_transport=httpx.MockTransport(upstream),ws_connector=connector)
     with TestClient(app) as c:
         body=json.dumps({'model':'qwen-plus','messages':[{'role':'user','content':'test'}]},separators=(',',':'))
         digest=hashlib.sha256(body.encode()).hexdigest()
@@ -39,3 +42,11 @@ def test_factory_registry_gates_actual_routes():
         headers=proof();trust['revoked'].append(device_id)
         assert c.post('/v1/chat/completions',content=body,headers=headers).status_code==401
         assert len(calls)==1
+
+        trust['revoked'].clear()
+        digest=realtime_hash(config.realtime_models[0]);headers=proof()
+        with c.websocket_connect('/v1/realtime',headers=headers) as ws:
+            ws.send_text('alive');assert ws.receive_text()=='alive'
+            trust['revoked'].append(device_id)
+            message=ws.receive();assert message['type']=='websocket.close' and message['code']==1008
+        assert connector.closed==1

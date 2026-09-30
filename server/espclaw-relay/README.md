@@ -101,7 +101,7 @@ python3.12 -m venv .venv
 
 部署站点 `https://spark.mpython.cn`，HTTP 入口 `/v1/chat/completions`，实时语音 `/api-ws/v1/realtime`。
 生产必须设置 `DEVICE_REGISTRY_URL=http://127.0.0.1:3000/internal/device-keys`，不配置静态设备 token。
-`POST /v1/auth/challenge` 使用已登记的 `deviceId` 与请求 SHA256 获取单次挑战。
+`POST /v1/auth/challenge` 使用 `deviceId`、`publicKey`、离线 `certificate` 与请求 SHA256 获取单次挑战。
 HTTP Bearer 为 `base64(JSON({deviceId,challengeId,signature}))`；signature 是 P-256/SHA256 DER 签名的 base64。
 HTTP 同时提交 `X-Spark-Request-Hash`（原始请求体字节的 SHA256）；WebSocket 摘要是 UTF-8 `realtime:<model>` 的 SHA256。
 `/v1/models` 摘要为 UTF-8 `models` 的 SHA256。每个证明只能使用一次，30 秒过期。
@@ -110,4 +110,4 @@ GitHub `.github/workflows/spark-relay.yml` 在 `labplus-claw` 的相关路径推
 健康检查失败自动恢复上一发布目录。只有 Nginx 80/443 对外，后端绑定 127.0.0.1:8000。
 本次 key 的文字调用与 `wss://dashscope.aliyuncs.com/api-ws/v1/realtime` 的 `qwen3.5-omni-flash-realtime` 建连均已验证；历史代码中的 workspace 域名对此 key 返回 403，生产已改用经验证的公共域名。
 
-出厂流程和硬件安全未验证边界见 `integration/labplus/FACTORY_IDENTITY.md`。服务端没有预登记任何测试私钥。
+出厂流程和硬件安全未验证边界见 `integration/labplus/FACTORY_IDENTITY.md`。服务器只保存厂商公钥和设备黑名单，无需逐台登记。实时语音每 5 秒检查黑名单，拉黑或检查失败后关闭连接。
